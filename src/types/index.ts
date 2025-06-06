@@ -13,7 +13,7 @@ export interface Medicine {
   name: string;
   description: string;
   price: number;
-  category: 'basic' | 'prescription' | 'energy' | 'headache' | 'cough';
+  category: 'basic' | 'prescription' | 'energy' | 'headache' | 'cough' | 'saline' | 'equipment';
   image: string;
   requiresPrescription: boolean;
   inStock: boolean;
