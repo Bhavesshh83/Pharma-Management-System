@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Medicine } from '@/types';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { ShoppingCart, Prescription } from 'lucide-react';
+import { ShoppingCart, FileText } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface MedicineCardProps {
@@ -73,7 +73,7 @@ const MedicineCard: React.FC<MedicineCardProps> = ({ medicine }) => {
             {getCategoryLabel(medicine.category)}
           </Badge>
           {medicine.requiresPrescription && (
-            <Prescription className="h-4 w-4 text-red-500" />
+            <FileText className="h-4 w-4 text-red-500" />
           )}
         </div>
         <img
