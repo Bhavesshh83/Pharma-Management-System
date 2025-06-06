@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   email: string;
@@ -28,6 +27,13 @@ export interface Prescription {
   uploadedAt: Date;
   verifiedBy?: string;
   medicines?: string[];
+  ocrData?: {
+    doctorName: string;
+    patientName: string;
+    extractedMedicines: string[];
+    rawText: string;
+    confidence: number;
+  };
 }
 
 export interface Order {
