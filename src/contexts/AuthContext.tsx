@@ -31,19 +31,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         if (session?.user) {
-          // Fetch user profile from profiles table
-          fetchUserProfile(session.user.id);
+          // Use setTimeout to prevent deadlock
+          setTimeout(() => {
+            fetchUserProfile(session.user.id);
+          }, 0);
         } else {
           setUser(null);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.email);
       setSession(session);
       if (session?.user) {
         fetchUserProfile(session.user.id);
@@ -57,6 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      console.log('Fetching profile for user:', userId);
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
@@ -70,6 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (profile) {
+        console.log('Profile found:', profile);
         setUser({
           id: profile.id,
           email: profile.email,
@@ -88,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string, role: User['role']): Promise<boolean> => {
     setLoading(true);
+    console.log('Attempting login for:', email, 'as role:', role);
     
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -102,6 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data.user) {
+        console.log('Login successful, checking profile...');
         // Check if user profile exists and has the correct role
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
@@ -118,13 +126,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Verify role matches
         if (profile.role !== role) {
-          console.error('Role mismatch');
+          console.error('Role mismatch. Expected:', role, 'Got:', profile.role);
           await supabase.auth.signOut();
           setLoading(false);
           return false;
         }
 
-        // Profile will be fetched by the auth state change listener
+        console.log('Login successful with correct role');
         return true;
       }
 
@@ -139,6 +147,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (userData: Omit<User, 'id'> & { password: string }): Promise<boolean> => {
     setLoading(true);
+    console.log('Attempting registration for:', userData.email, 'as role:', userData.role);
     
     try {
       const redirectUrl = `${window.location.origin}/`;
@@ -164,6 +173,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data.user) {
+        console.log('User created, creating profile...');
         // Create user profile in profiles table
         const { error: profileError } = await supabase
           .from('profiles')
@@ -182,6 +192,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return false;
         }
 
+        console.log('Registration successful');
         setLoading(false);
         return true;
       }
@@ -197,6 +208,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
+      console.log('Logging out...');
       await supabase.auth.signOut();
       setUser(null);
       setSession(null);

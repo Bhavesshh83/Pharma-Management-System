@@ -35,6 +35,8 @@ const AuthPage = () => {
     e.preventDefault();
     setIsLoading(true);
     
+    console.log('Login form submitted with:', loginData);
+    
     try {
       const success = await login(loginData.email, loginData.password, loginData.role);
       if (success) {
@@ -57,11 +59,18 @@ const AuthPage = () => {
           default:
             navigate('/');
         }
+      } else {
+        toast({
+          title: "Login failed",
+          description: "Please check your credentials and role selection.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast({
         title: "Login failed",
-        description: "Please check your credentials and try again.",
+        description: "An error occurred during login. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -73,19 +82,32 @@ const AuthPage = () => {
     e.preventDefault();
     setIsLoading(true);
     
+    console.log('Register form submitted with:', registerData);
+    
     try {
       const success = await register(registerData);
       if (success) {
         toast({
           title: "Registration successful!",
-          description: `Welcome to MediCare+, ${registerData.name}`,
+          description: `Welcome to MediCare+, ${registerData.name}! Please check your email to verify your account.`,
         });
-        navigate('/');
+        // Switch to login tab after successful registration
+        const loginTab = document.querySelector('[data-value="login"]') as HTMLElement;
+        if (loginTab) {
+          loginTab.click();
+        }
+      } else {
+        toast({
+          title: "Registration failed",
+          description: "Please check your information and try again.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
+      console.error('Registration error:', error);
       toast({
         title: "Registration failed",
-        description: "Please try again.",
+        description: "An error occurred during registration. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -103,7 +125,7 @@ const AuthPage = () => {
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="login" data-value="login">Login</TabsTrigger>
               <TabsTrigger value="register">Register</TabsTrigger>
             </TabsList>
             
@@ -143,6 +165,7 @@ const AuthPage = () => {
                     value={loginData.email}
                     onChange={(e) => setLoginData({...loginData, email: e.target.value})}
                     required
+                    placeholder="Enter your email"
                   />
                 </div>
                 
@@ -154,6 +177,7 @@ const AuthPage = () => {
                     value={loginData.password}
                     onChange={(e) => setLoginData({...loginData, password: e.target.value})}
                     required
+                    placeholder="Enter your password"
                   />
                 </div>
                 
@@ -194,6 +218,7 @@ const AuthPage = () => {
                     value={registerData.name}
                     onChange={(e) => setRegisterData({...registerData, name: e.target.value})}
                     required
+                    placeholder="Enter your full name"
                   />
                 </div>
                 
@@ -205,6 +230,7 @@ const AuthPage = () => {
                     value={registerData.email}
                     onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
                     required
+                    placeholder="Enter your email"
                   />
                 </div>
                 
@@ -216,6 +242,8 @@ const AuthPage = () => {
                     value={registerData.password}
                     onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
                     required
+                    placeholder="Create a password"
+                    minLength={6}
                   />
                 </div>
                 
@@ -225,6 +253,7 @@ const AuthPage = () => {
                     id="register-phone"
                     value={registerData.phone}
                     onChange={(e) => setRegisterData({...registerData, phone: e.target.value})}
+                    placeholder="Enter your phone number"
                   />
                 </div>
                 
@@ -235,6 +264,7 @@ const AuthPage = () => {
                       id="register-address"
                       value={registerData.address}
                       onChange={(e) => setRegisterData({...registerData, address: e.target.value})}
+                      placeholder="Enter your address"
                     />
                   </div>
                 )}
