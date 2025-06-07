@@ -9,7 +9,209 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      medicines: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          image: string | null
+          in_stock: boolean | null
+          manufacturer: string | null
+          name: string
+          price: number
+          requires_prescription: boolean | null
+          rxnorm_code: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          in_stock?: boolean | null
+          manufacturer?: string | null
+          name: string
+          price: number
+          requires_prescription?: boolean | null
+          rxnorm_code?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          in_stock?: boolean | null
+          manufacturer?: string | null
+          name?: string
+          price?: number
+          requires_prescription?: boolean | null
+          rxnorm_code?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          medicine_id: string
+          order_id: string
+          price: number
+          quantity: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          medicine_id: string
+          order_id: string
+          price: number
+          quantity?: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          medicine_id?: string
+          order_id?: string
+          price?: number
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_medicine_id_fkey"
+            columns: ["medicine_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string | null
+          delivery_address: string
+          delivery_partner_id: string | null
+          id: string
+          prescription_id: string | null
+          status: string
+          total_amount: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          delivery_address: string
+          delivery_partner_id?: string | null
+          id?: string
+          prescription_id?: string | null
+          status?: string
+          total_amount: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          delivery_address?: string
+          delivery_partner_id?: string | null
+          id?: string
+          prescription_id?: string | null
+          status?: string
+          total_amount?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_prescription_id_fkey"
+            columns: ["prescription_id"]
+            isOneToOne: false
+            referencedRelation: "prescriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prescriptions: {
+        Row: {
+          created_at: string | null
+          id: string
+          image_url: string
+          medicines: string[] | null
+          ocr_data: Json | null
+          status: string
+          updated_at: string | null
+          uploaded_at: string | null
+          user_id: string
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          image_url: string
+          medicines?: string[] | null
+          ocr_data?: Json | null
+          status?: string
+          updated_at?: string | null
+          uploaded_at?: string | null
+          user_id: string
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image_url?: string
+          medicines?: string[] | null
+          ocr_data?: Json | null
+          status?: string
+          updated_at?: string | null
+          uploaded_at?: string | null
+          user_id?: string
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          email: string
+          id: string
+          name: string
+          phone?: string | null
+          role?: string
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { Upload, FileText, CheckCircle, Eye, Brain } from 'lucide-react';
+import { Upload, FileText, CheckCircle, Eye, Brain, Database } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { extractPrescriptionData, PrescriptionData } from '@/services/ocrService';
 import PrescriptionVerification from '@/components/Prescription/PrescriptionVerification';
@@ -59,7 +59,7 @@ const PrescriptionUpload = () => {
       
       setUploadStatus('processing');
       
-      // Process prescription with OCR
+      // Process prescription with OCR and database matching
       const extractedData = await extractPrescriptionData(selectedFile);
       setPrescriptionData(extractedData);
       
@@ -67,7 +67,7 @@ const PrescriptionUpload = () => {
       
       toast({
         title: "Prescription processed successfully!",
-        description: "OCR extraction completed. Please verify the detected information.",
+        description: `OCR extraction completed. Found ${extractedData.medicineMatches?.length || 0} medicine matches in database.`,
       });
       
     } catch (error) {
@@ -143,10 +143,10 @@ const PrescriptionUpload = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
-                  Prescription Upload with AI Recognition
+                  AI-Powered Prescription Processing
                 </CardTitle>
                 <CardDescription>
-                  Upload a clear image or PDF of your prescription for AI-powered verification and automatic medicine detection
+                  Upload your prescription for AI-powered OCR extraction, RxNorm verification, and automatic medicine matching from our database
                 </CardDescription>
               </CardHeader>
               
@@ -197,10 +197,24 @@ const PrescriptionUpload = () => {
                         AI-Powered Features:
                       </h4>
                       <ul className="text-sm text-green-700 space-y-1">
-                        <li>• Automatic text extraction from prescription images</li>
+                        <li>• Advanced OCR text extraction from prescription images</li>
                         <li>• Smart detection of doctor name, patient name, and medicines</li>
-                        <li>• Intelligent medicine matching with our inventory</li>
-                        <li>• Direct addition of verified medicines to cart</li>
+                        <li>• RxNorm API integration for medicine standardization</li>
+                        <li>• Intelligent medicine matching with database inventory</li>
+                        <li>• Confidence scoring for extracted medicines</li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="font-medium text-blue-800 mb-2 flex items-center">
+                        <Database className="h-4 w-4 mr-2" />
+                        Database Integration:
+                      </h4>
+                      <ul className="text-sm text-blue-700 space-y-1">
+                        <li>• Prescription data stored securely in Supabase</li>
+                        <li>• Real-time medicine inventory matching</li>
+                        <li>• RxNorm code verification for accuracy</li>
+                        <li>• Automatic cart addition of verified medicines</li>
                       </ul>
                     </div>
 
@@ -230,14 +244,14 @@ const PrescriptionUpload = () => {
                           {uploadStatus === 'processing' && (
                             <>
                               <Brain className="h-4 w-4 mr-2 animate-pulse" />
-                              Processing with AI...
+                              Processing with AI & RxNorm...
                             </>
                           )}
                         </>
                       ) : (
                         <>
                           <Eye className="h-4 w-4 mr-2" />
-                          Process with AI Recognition
+                          Process with AI & Database Matching
                         </>
                       )}
                     </Button>

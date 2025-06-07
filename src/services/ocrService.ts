@@ -1,5 +1,6 @@
 
 import Tesseract from 'tesseract.js';
+import { searchMedicinesInDatabase, savePrescriptionToDatabase } from './medicineService';
 
 export interface PrescriptionData {
   doctorName: string;
@@ -7,6 +8,8 @@ export interface PrescriptionData {
   uploadDate: string;
   medicines: string[];
   rawText: string;
+  medicineMatches?: any[];
+  prescriptionId?: string;
 }
 
 export const extractPrescriptionData = async (imageFile: File): Promise<PrescriptionData> => {
@@ -26,10 +29,32 @@ export const extractPrescriptionData = async (imageFile: File): Promise<Prescrip
     // Parse the extracted text to find relevant information
     const parsedData = parsePrescriptionText(text);
     
+    // Search for medicine matches in database
+    const medicineMatches = await searchMedicinesInDatabase(parsedData.medicines);
+    
+    // Save prescription to database for tracking
+    const imageUrl = URL.createObjectURL(imageFile); // In production, upload to Supabase Storage
+    
+    const ocrData = {
+      doctorName: parsedData.doctorName,
+      patientName: parsedData.patientName,
+      extractedMedicines: parsedData.medicines,
+      rawText: text,
+      confidence: 0.8 // Simplified confidence score
+    };
+
+    const savedPrescription = await savePrescriptionToDatabase(
+      imageUrl,
+      ocrData,
+      parsedData.medicines
+    );
+    
     return {
       ...parsedData,
       rawText: text,
-      uploadDate: new Date().toISOString().split('T')[0]
+      uploadDate: new Date().toISOString().split('T')[0],
+      medicineMatches,
+      prescriptionId: savedPrescription.id
     };
   } catch (error) {
     console.error('OCR processing failed:', error);
@@ -37,7 +62,7 @@ export const extractPrescriptionData = async (imageFile: File): Promise<Prescrip
   }
 };
 
-const parsePrescriptionText = (text: string): Omit<PrescriptionData, 'rawText' | 'uploadDate'> => {
+const parsePrescriptionText = (text: string): Omit<PrescriptionData, 'rawText' | 'uploadDate' | 'medicineMatches' | 'prescriptionId'> => {
   const lines = text.split('\n').filter(line => line.trim().length > 0);
   
   let doctorName = '';
@@ -60,12 +85,12 @@ const parsePrescriptionText = (text: string): Omit<PrescriptionData, 'rawText' |
     /ms\.?\s+([a-zA-Z\s]+)/i
   ];
 
-  // Common medicine keywords and patterns
+  // Enhanced medicine keywords and patterns
   const medicineKeywords = [
     'tablet', 'capsule', 'syrup', 'injection', 'drops', 'cream', 'ointment',
     'paracetamol', 'aspirin', 'ibuprofen', 'amoxicillin', 'azithromycin',
     'metformin', 'omeprazole', 'cetirizine', 'ranitidine', 'diclofenac',
-    'mg', 'ml', 'gm', 'twice daily', 'once daily', 'thrice daily'
+    'mg', 'ml', 'gm', 'twice daily', 'once daily', 'thrice daily', 'bd', 'od', 'tid'
   ];
 
   // Extract doctor name
@@ -92,7 +117,7 @@ const parsePrescriptionText = (text: string): Omit<PrescriptionData, 'rawText' |
     if (patientName) break;
   }
 
-  // Extract medicines
+  // Extract medicines with improved detection
   for (const line of lines) {
     const lowerLine = line.toLowerCase();
     
@@ -101,14 +126,25 @@ const parsePrescriptionText = (text: string): Omit<PrescriptionData, 'rawText' |
       lowerLine.includes(keyword.toLowerCase())
     );
     
-    if (containsMedicineKeyword && line.trim().length > 3) {
+    // Also check for common medicine name patterns
+    const medicinePattern = /^[0-9]*\.?\s*([a-zA-Z]+(?:\s+[a-zA-Z]+)*)\s*(?:\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg))?/i;
+    const medicineMatch = line.match(medicinePattern);
+    
+    if ((containsMedicineKeyword || medicineMatch) && line.trim().length > 3) {
       // Clean and format the medicine name
-      const cleanedMedicine = line.trim()
+      let cleanedMedicine = line.trim()
         .replace(/^\d+\.?\s*/, '') // Remove numbering
         .replace(/\s+/g, ' ') // Normalize spaces
+        .replace(/\s*-\s*.*$/, '') // Remove dosage instructions after dash
         .trim();
       
-      if (cleanedMedicine.length > 3) {
+      // Extract just the medicine name part if it contains dosage
+      const nameMatch = cleanedMedicine.match(/^([a-zA-Z\s]+?)(?:\s+\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg))?/i);
+      if (nameMatch && nameMatch[1]) {
+        cleanedMedicine = nameMatch[1].trim();
+      }
+      
+      if (cleanedMedicine.length > 3 && !medicines.includes(cleanedMedicine)) {
         medicines.push(cleanedMedicine);
       }
     }
