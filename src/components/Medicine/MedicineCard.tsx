@@ -27,7 +27,7 @@ const MedicineCard: React.FC<MedicineCardProps> = ({ medicine }) => {
       return;
     }
 
-    if (medicine.requiresPrescription) {
+    if (medicine.requires_prescription) {
       toast({
         title: "Prescription Required",
         description: "Please upload a prescription to purchase this medicine",
@@ -73,7 +73,7 @@ const MedicineCard: React.FC<MedicineCardProps> = ({ medicine }) => {
             {getCategoryLabel(medicine.category)}
           </Badge>
           <div className="flex items-center space-x-1">
-            {medicine.requiresPrescription && (
+            {medicine.requires_prescription && (
               <FileText className="h-4 w-4 text-red-500" />
             )}
             <Verified className="h-4 w-4 text-green-500" />
@@ -106,10 +106,10 @@ const MedicineCard: React.FC<MedicineCardProps> = ({ medicine }) => {
             ₹{medicine.price}
           </span>
           <Badge 
-            variant={medicine.inStock ? "default" : "destructive"}
-            className={medicine.inStock ? "bg-green-100 text-green-800 border border-green-200" : ""}
+            variant={medicine.in_stock ? "default" : "destructive"}
+            className={medicine.in_stock ? "bg-green-100 text-green-800 border border-green-200" : ""}
           >
-            {medicine.inStock ? "In Stock" : "Out of Stock"}
+            {medicine.in_stock ? "In Stock" : "Out of Stock"}
           </Badge>
         </div>
       </CardContent>
@@ -117,16 +117,16 @@ const MedicineCard: React.FC<MedicineCardProps> = ({ medicine }) => {
       <CardFooter className="px-6 pb-6">
         <Button
           onClick={handleAddToCart}
-          disabled={!medicine.inStock}
+          disabled={!medicine.in_stock}
           className={`w-full py-3 font-semibold transition-all duration-300 ${
-            medicine.requiresPrescription 
+            medicine.requires_prescription 
               ? "bg-orange-100 text-orange-800 border border-orange-200 hover:bg-orange-200 hover:text-orange-900" 
               : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl"
           }`}
-          variant={medicine.requiresPrescription ? "outline" : "default"}
+          variant={medicine.requires_prescription ? "outline" : "default"}
         >
           <ShoppingCart className="h-4 w-4 mr-2" />
-          {medicine.requiresPrescription ? "Prescription Required" : "Add to Cart"}
+          {medicine.requires_prescription ? "Prescription Required" : "Add to Cart"}
         </Button>
       </CardFooter>
     </Card>

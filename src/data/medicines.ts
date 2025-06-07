@@ -10,8 +10,8 @@ export const medicines: Medicine[] = [
     price: 25,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Generic Pharma'
   },
   {
@@ -21,8 +21,8 @@ export const medicines: Medicine[] = [
     price: 45,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Micro Labs'
   },
   {
@@ -32,8 +32,8 @@ export const medicines: Medicine[] = [
     price: 30,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Bayer'
   },
   {
@@ -43,8 +43,8 @@ export const medicines: Medicine[] = [
     price: 55,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Abbott'
   },
   {
@@ -54,8 +54,8 @@ export const medicines: Medicine[] = [
     price: 35,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'GSK'
   },
   {
@@ -65,8 +65,8 @@ export const medicines: Medicine[] = [
     price: 65,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1512069772995-ec65bbf3d571?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Novartis'
   },
   {
@@ -76,8 +76,8 @@ export const medicines: Medicine[] = [
     price: 35,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'UCB Pharma'
   },
   {
@@ -87,8 +87,8 @@ export const medicines: Medicine[] = [
     price: 45,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Johnson & Johnson'
   },
   
@@ -100,8 +100,8 @@ export const medicines: Medicine[] = [
     price: 35,
     category: 'headache',
     image: 'https://images.unsplash.com/photo-1563213126-a4273aed2016?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Piramal Healthcare'
   },
   {
@@ -111,8 +111,8 @@ export const medicines: Medicine[] = [
     price: 28,
     category: 'headache',
     image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Pfizer'
   },
   {
@@ -122,8 +122,8 @@ export const medicines: Medicine[] = [
     price: 42,
     category: 'headache',
     image: 'https://images.unsplash.com/photo-1512069772995-ec65bbf3d571?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Sanofi'
   },
   {
@@ -133,8 +133,8 @@ export const medicines: Medicine[] = [
     price: 18,
     category: 'headache',
     image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Reckitt Benckiser'
   },
   {
@@ -144,8 +144,8 @@ export const medicines: Medicine[] = [
     price: 65,
     category: 'headache',
     image: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Haleon'
   },
   {
@@ -155,8 +155,8 @@ export const medicines: Medicine[] = [
     price: 85,
     category: 'headache',
     image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'GSK'
   },
   
@@ -168,8 +168,8 @@ export const medicines: Medicine[] = [
     price: 85,
     category: 'cough',
     image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Johnson & Johnson'
   },
   {
@@ -179,8 +179,8 @@ export const medicines: Medicine[] = [
     price: 15,
     category: 'cough',
     image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Dabur'
   },
   {
@@ -190,8 +190,8 @@ export const medicines: Medicine[] = [
     price: 12,
     category: 'cough',
     image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Procter & Gamble'
   },
   {
@@ -201,8 +201,8 @@ export const medicines: Medicine[] = [
     price: 95,
     category: 'cough',
     image: 'https://images.unsplash.com/photo-1585435557343-3b092031d637?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Glenmark'
   },
   {
@@ -212,8 +212,8 @@ export const medicines: Medicine[] = [
     price: 78,
     category: 'cough',
     image: 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Ranbaxy'
   },
   {
@@ -223,8 +223,8 @@ export const medicines: Medicine[] = [
     price: 25,
     category: 'cough',
     image: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Reckitt Benckiser'
   },
   {
@@ -234,8 +234,8 @@ export const medicines: Medicine[] = [
     price: 55,
     category: 'cough',
     image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Procter & Gamble'
   },
   {
@@ -245,8 +245,8 @@ export const medicines: Medicine[] = [
     price: 45,
     category: 'cough',
     image: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Centaur Pharma'
   },
   {
@@ -256,8 +256,8 @@ export const medicines: Medicine[] = [
     price: 38,
     category: 'cough',
     image: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Sanofi'
   },
   {
@@ -267,8 +267,8 @@ export const medicines: Medicine[] = [
     price: 125,
     category: 'cough',
     image: 'https://images.unsplash.com/photo-1562736537-cec2d03fa71c?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Novartis'
   },
   
@@ -280,8 +280,8 @@ export const medicines: Medicine[] = [
     price: 25,
     category: 'energy',
     image: 'https://images.unsplash.com/photo-1562736537-cec2d03fa71c?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'FDC Limited'
   },
   {
@@ -291,8 +291,8 @@ export const medicines: Medicine[] = [
     price: 20,
     category: 'energy',
     image: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Cipla'
   },
   {
@@ -302,8 +302,8 @@ export const medicines: Medicine[] = [
     price: 55,
     category: 'energy',
     image: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Heinz India'
   },
   {
@@ -313,8 +313,8 @@ export const medicines: Medicine[] = [
     price: 45,
     category: 'energy',
     image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Raptakos Brett'
   },
   {
@@ -324,8 +324,8 @@ export const medicines: Medicine[] = [
     price: 85,
     category: 'energy',
     image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Mankind Pharma'
   },
   {
@@ -335,8 +335,8 @@ export const medicines: Medicine[] = [
     price: 125,
     category: 'energy',
     image: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Ranbaxy'
   },
   {
@@ -346,8 +346,8 @@ export const medicines: Medicine[] = [
     price: 75,
     category: 'energy',
     image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Nature Made'
   },
   {
@@ -357,8 +357,8 @@ export const medicines: Medicine[] = [
     price: 95,
     category: 'energy',
     image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Sun Pharma'
   },
   {
@@ -368,8 +368,8 @@ export const medicines: Medicine[] = [
     price: 145,
     category: 'energy',
     image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Centrum'
   },
   {
@@ -379,8 +379,8 @@ export const medicines: Medicine[] = [
     price: 65,
     category: 'energy',
     image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Abbott'
   },
   {
@@ -390,8 +390,8 @@ export const medicines: Medicine[] = [
     price: 115,
     category: 'energy',
     image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Cipla'
   },
   
@@ -403,8 +403,8 @@ export const medicines: Medicine[] = [
     price: 125,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Sun Pharma'
   },
   {
@@ -414,8 +414,8 @@ export const medicines: Medicine[] = [
     price: 45,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Lupin'
   },
   {
@@ -425,8 +425,8 @@ export const medicines: Medicine[] = [
     price: 85,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Ranbaxy'
   },
   {
@@ -436,8 +436,8 @@ export const medicines: Medicine[] = [
     price: 95,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Pfizer'
   },
   {
@@ -447,8 +447,8 @@ export const medicines: Medicine[] = [
     price: 65,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Cipla'
   },
   {
@@ -458,8 +458,8 @@ export const medicines: Medicine[] = [
     price: 55,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Dr. Reddy\'s'
   },
   {
@@ -469,8 +469,8 @@ export const medicines: Medicine[] = [
     price: 75,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1512069772995-ec65bbf3d571?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Merck'
   },
   {
@@ -480,8 +480,8 @@ export const medicines: Medicine[] = [
     price: 115,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1563213126-a4273aed2016?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Bayer'
   },
   {
@@ -491,8 +491,8 @@ export const medicines: Medicine[] = [
     price: 65,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Wyeth'
   },
   {
@@ -502,8 +502,8 @@ export const medicines: Medicine[] = [
     price: 85,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1585435557343-3b092031d637?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Prinivil'
   },
   {
@@ -513,8 +513,8 @@ export const medicines: Medicine[] = [
     price: 105,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Bristol Myers'
   },
   {
@@ -524,8 +524,8 @@ export const medicines: Medicine[] = [
     price: 850,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Sanofi'
   },
   {
@@ -535,8 +535,8 @@ export const medicines: Medicine[] = [
     price: 75,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Abbott'
   },
   
@@ -548,8 +548,8 @@ export const medicines: Medicine[] = [
     price: 45,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Baxter'
   },
   {
@@ -559,8 +559,8 @@ export const medicines: Medicine[] = [
     price: 55,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Fresenius Kabi'
   },
   {
@@ -570,8 +570,8 @@ export const medicines: Medicine[] = [
     price: 50,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'B. Braun'
   },
   {
@@ -581,8 +581,8 @@ export const medicines: Medicine[] = [
     price: 48,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Otsuka'
   },
   {
@@ -592,8 +592,8 @@ export const medicines: Medicine[] = [
     price: 35,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Ayr'
   },
   {
@@ -603,8 +603,8 @@ export const medicines: Medicine[] = [
     price: 125,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1562736537-cec2d03fa71c?w=300&h=200&fit=crop',
-    requiresPrescription: true,
-    inStock: true,
+    requires_prescription: true,
+    in_stock: true,
     manufacturer: 'Hospira'
   },
   
@@ -616,8 +616,8 @@ export const medicines: Medicine[] = [
     price: 45,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Cipla'
   },
   {
@@ -627,8 +627,8 @@ export const medicines: Medicine[] = [
     price: 35,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'GSK'
   },
   {
@@ -638,8 +638,8 @@ export const medicines: Medicine[] = [
     price: 65,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Mundipharma'
   },
   {
@@ -649,8 +649,8 @@ export const medicines: Medicine[] = [
     price: 25,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'CVS Health'
   },
   {
@@ -660,8 +660,8 @@ export const medicines: Medicine[] = [
     price: 250,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Omron'
   },
   {
@@ -671,8 +671,8 @@ export const medicines: Medicine[] = [
     price: 1250,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1512069772995-ec65bbf3d571?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Omron'
   },
   {
@@ -682,8 +682,8 @@ export const medicines: Medicine[] = [
     price: 350,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Accu-Chek'
   },
   {
@@ -693,8 +693,8 @@ export const medicines: Medicine[] = [
     price: 125,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1563213126-a4273aed2016?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: '3M'
   },
   {
@@ -704,8 +704,8 @@ export const medicines: Medicine[] = [
     price: 85,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Purell'
   },
   {
@@ -715,8 +715,8 @@ export const medicines: Medicine[] = [
     price: 45,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1585435557343-3b092031d637?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Band-Aid'
   },
   {
@@ -726,8 +726,8 @@ export const medicines: Medicine[] = [
     price: 35,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Johnson & Johnson'
   },
   {
@@ -737,8 +737,8 @@ export const medicines: Medicine[] = [
     price: 65,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'BD'
   },
   {
@@ -748,8 +748,8 @@ export const medicines: Medicine[] = [
     price: 55,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'ACE'
   },
   {
@@ -759,8 +759,8 @@ export const medicines: Medicine[] = [
     price: 85,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Allergan'
   },
   {
@@ -770,8 +770,8 @@ export const medicines: Medicine[] = [
     price: 25,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Tums'
   },
   {
@@ -781,8 +781,8 @@ export const medicines: Medicine[] = [
     price: 145,
     category: 'energy',
     image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop',
-    requiresPrescription: false,
-    inStock: true,
+    requires_prescription: false,
+    in_stock: true,
     manufacturer: 'Align'
   }
 ];
