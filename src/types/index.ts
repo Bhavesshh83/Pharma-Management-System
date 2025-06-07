@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   email: string;
@@ -14,9 +15,12 @@ export interface Medicine {
   price: number;
   category: 'basic' | 'prescription' | 'energy' | 'headache' | 'cough' | 'saline' | 'equipment';
   image: string;
-  requiresPrescription: boolean;
-  inStock: boolean;
+  requires_prescription: boolean;
+  in_stock: boolean;
   manufacturer: string;
+  rxnorm_code?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Prescription {

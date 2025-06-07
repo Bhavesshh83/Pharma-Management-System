@@ -62,7 +62,7 @@ const lookupInRxNorm = async (medicineName: string) => {
 
 const findBestDatabaseMatch = (
   extractedName: string, 
-  medicines: Medicine[], 
+  medicines: any[], 
   rxnormData: any
 ): MedicineMatch | null => {
   const extractedLower = extractedName.toLowerCase();
