@@ -56,12 +56,12 @@ const AuthPage = () => {
     console.log('Login form submitted with:', loginData);
     
     try {
-      const success = await login(loginData.email, loginData.password, loginData.role);
+      const result = await login(loginData.email, loginData.password, loginData.role);
       
-      if (success) {
+      if (result.success) {
         toast({
           title: "Login successful!",
-          description: `Welcome back!`,
+          description: "Welcome back!",
         });
         
         // Navigate based on role
@@ -81,7 +81,7 @@ const AuthPage = () => {
       } else {
         toast({
           title: "Login Failed",
-          description: "Invalid email, password, or role selection. Please check your credentials and ensure you're selecting the correct role.",
+          description: result.error || "Login failed. Please try again.",
           variant: "destructive",
         });
       }
@@ -109,7 +109,7 @@ const AuthPage = () => {
       return;
     }
 
-    if (!registerData.email.includes('@')) {
+    if (!registerData.email.includes('@') || !registerData.email.includes('.')) {
       toast({
         title: "Invalid Email",
         description: "Please enter a valid email address.",
@@ -131,12 +131,12 @@ const AuthPage = () => {
     console.log('Register form submitted with:', registerData);
     
     try {
-      const success = await register(registerData);
+      const result = await register(registerData);
       
-      if (success) {
+      if (result.success) {
         toast({
           title: "Registration Successful!",
-          description: `Account created successfully! You can now log in.`,
+          description: "Account created successfully! You can now log in.",
         });
         
         // Clear form and switch to login tab
@@ -164,7 +164,7 @@ const AuthPage = () => {
       } else {
         toast({
           title: "Registration Failed",
-          description: "Unable to create account. This email might already be registered. Please try with a different email.",
+          description: result.error || "Registration failed. Please try again.",
           variant: "destructive",
         });
       }

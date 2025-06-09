@@ -6,8 +6,8 @@ import { Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string, role: User['role']) => Promise<boolean>;
-  register: (userData: Omit<User, 'id'> & { password: string }) => Promise<boolean>;
+  login: (email: string, password: string, role: User['role']) => Promise<{ success: boolean; error?: string }>;
+  register: (userData: Omit<User, 'id'> & { password: string }) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   loading: boolean;
 }
@@ -28,6 +28,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
+        setSession(session);
+        
+        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+          await fetchUserProfile(session.user.id);
+        } else {
+          setUser(null);
+          setLoading(false);
+        }
+      }
+    );
+
     // Get initial session
     const getInitialSession = async () => {
       try {
@@ -39,7 +54,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         console.log('Initial session:', session?.user?.email);
-        setSession(session);
         
         if (session?.user) {
           await fetchUserProfile(session.user.id);
@@ -51,21 +65,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(false);
       }
     };
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        setSession(session);
-        
-        if (session?.user && event === 'SIGNED_IN') {
-          await fetchUserProfile(session.user.id);
-        } else {
-          setUser(null);
-          setLoading(false);
-        }
-      }
-    );
 
     getInitialSession();
 
@@ -83,6 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Error fetching user profile:', error);
+        // If profile doesn't exist, user data might not be synced yet
         setUser(null);
         setLoading(false);
         return;
@@ -106,12 +106,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (email: string, password: string, role: User['role']): Promise<boolean> => {
+  const login = async (email: string, password: string, role: User['role']): Promise<{ success: boolean; error?: string }> => {
     setLoading(true);
     console.log('Attempting login for:', email, 'as role:', role);
     
     try {
-      // First, attempt to sign in
+      // Sign in with email and password
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -120,13 +120,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (authError) {
         console.error('Login error:', authError);
         setLoading(false);
-        return false;
+        
+        if (authError.message.includes('Invalid login credentials')) {
+          return { success: false, error: 'Invalid email or password. Please check your credentials.' };
+        }
+        if (authError.message.includes('Email not confirmed')) {
+          return { success: false, error: 'Please check your email and confirm your account before logging in.' };
+        }
+        return { success: false, error: authError.message };
       }
 
       if (authData.user) {
         console.log('Auth successful, checking profile...');
         
-        // Check if user profile exists
+        // Check user profile and role
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -137,7 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.error('Profile not found:', profileError);
           await supabase.auth.signOut();
           setLoading(false);
-          return false;
+          return { success: false, error: 'User profile not found. Please contact support.' };
         }
 
         // Verify role matches
@@ -145,79 +152,118 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.error('Role mismatch. Expected:', role, 'Got:', profile.role);
           await supabase.auth.signOut();
           setLoading(false);
-          return false;
+          return { success: false, error: `You are registered as a ${profile.role}, not ${role}. Please select the correct role.` };
         }
 
         console.log('Login successful with correct role');
-        return true;
+        setLoading(false);
+        return { success: true };
       }
 
       setLoading(false);
-      return false;
+      return { success: false, error: 'Login failed. Please try again.' };
     } catch (error) {
       console.error('Login error:', error);
       setLoading(false);
-      return false;
+      return { success: false, error: 'An unexpected error occurred. Please try again.' };
     }
   };
 
-  const register = async (userData: Omit<User, 'id'> & { password: string }): Promise<boolean> => {
+  const register = async (userData: Omit<User, 'id'> & { password: string }): Promise<{ success: boolean; error?: string }> => {
     setLoading(true);
     console.log('Attempting registration for:', userData.email, 'as role:', userData.role);
     
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      
-      // First, create the auth user
+      // Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
         options: {
-          emailRedirectTo: redirectUrl
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            name: userData.name,
+            role: userData.role
+          }
         }
       });
 
       if (authError) {
         console.error('Registration auth error:', authError);
         setLoading(false);
-        return false;
+        
+        if (authError.message.includes('User already registered')) {
+          return { success: false, error: 'An account with this email already exists. Please try logging in instead.' };
+        }
+        if (authError.message.includes('email_address_invalid')) {
+          return { success: false, error: 'Please enter a valid email address.' };
+        }
+        if (authError.message.includes('password')) {
+          return { success: false, error: 'Password must be at least 6 characters long.' };
+        }
+        return { success: false, error: authError.message };
       }
 
       if (authData.user) {
         console.log('User created, creating profile...');
         
-        // Wait a moment to ensure the user is properly created
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Create user profile - retry mechanism for timing issues
+        let profileCreated = false;
+        let attempts = 0;
+        const maxAttempts = 3;
         
-        // Create user profile in profiles table
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: authData.user.id,
-            email: userData.email,
-            name: userData.name,
-            role: userData.role,
-            phone: userData.phone || null,
-            address: userData.address || null
-          });
+        while (!profileCreated && attempts < maxAttempts) {
+          attempts++;
+          
+          try {
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .insert({
+                id: authData.user.id,
+                email: userData.email,
+                name: userData.name,
+                role: userData.role,
+                phone: userData.phone || null,
+                address: userData.address || null
+              });
 
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-          setLoading(false);
-          return false;
+            if (profileError) {
+              console.error(`Profile creation attempt ${attempts} failed:`, profileError);
+              
+              if (attempts === maxAttempts) {
+                // If all attempts failed, clean up auth user
+                await supabase.auth.signOut();
+                setLoading(false);
+                return { success: false, error: 'Failed to create user profile. Please try again.' };
+              }
+              
+              // Wait before retry
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            } else {
+              profileCreated = true;
+              console.log('Profile created successfully');
+            }
+          } catch (error) {
+            console.error(`Profile creation attempt ${attempts} error:`, error);
+            if (attempts === maxAttempts) {
+              await supabase.auth.signOut();
+              setLoading(false);
+              return { success: false, error: 'Failed to create user profile. Please try again.' };
+            }
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
         }
 
-        console.log('Registration and profile creation successful');
+        console.log('Registration successful');
         setLoading(false);
-        return true;
+        return { success: true };
       }
 
       setLoading(false);
-      return false;
+      return { success: false, error: 'Registration failed. Please try again.' };
     } catch (error) {
       console.error('Registration error:', error);
       setLoading(false);
-      return false;
+      return { success: false, error: 'An unexpected error occurred during registration. Please try again.' };
     }
   };
 
