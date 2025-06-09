@@ -33,12 +33,22 @@ const AuthPage = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     
+    if (!loginData.email || !loginData.password) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
     console.log('Login form submitted with:', loginData);
     
     try {
       const success = await login(loginData.email, loginData.password, loginData.role);
+      
       if (success) {
         toast({
           title: "Login successful!",
@@ -62,7 +72,7 @@ const AuthPage = () => {
       } else {
         toast({
           title: "Login failed",
-          description: "Please check your credentials and role selection.",
+          description: "Invalid credentials or incorrect role selection. Please check your email, password, and role.",
           variant: "destructive",
         });
       }
@@ -80,18 +90,48 @@ const AuthPage = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     
+    if (!registerData.name || !registerData.email || !registerData.password) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (registerData.password.length < 6) {
+      toast({
+        title: "Invalid Password",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
     console.log('Register form submitted with:', registerData);
     
     try {
       const success = await register(registerData);
+      
       if (success) {
         toast({
           title: "Registration successful!",
-          description: `Welcome to MediCare+, ${registerData.name}! Please check your email to verify your account.`,
+          description: `Welcome to MediCare+, ${registerData.name}! You can now log in with your credentials.`,
         });
-        // Switch to login tab after successful registration
+        
+        // Clear form and switch to login tab
+        setRegisterData({
+          name: '',
+          email: '',
+          password: '',
+          phone: '',
+          address: '',
+          role: 'user'
+        });
+        
+        // Switch to login tab
         const loginTab = document.querySelector('[data-value="login"]') as HTMLElement;
         if (loginTab) {
           loginTab.click();
@@ -99,7 +139,7 @@ const AuthPage = () => {
       } else {
         toast({
           title: "Registration failed",
-          description: "Please check your information and try again.",
+          description: "Unable to create account. Please check your information and try again.",
           variant: "destructive",
         });
       }

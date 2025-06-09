@@ -30,10 +30,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
-        if (session?.user) {
+        
+        if (session?.user && event === 'SIGNED_IN') {
           // Use setTimeout to prevent deadlock
           setTimeout(() => {
             fetchUserProfile(session.user.id);
@@ -70,6 +71,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Error fetching user profile:', error);
+        // If profile doesn't exist, user might need to complete registration
+        setUser(null);
         setLoading(false);
         return;
       }
@@ -97,28 +100,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Attempting login for:', email, 'as role:', role);
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // First, attempt to sign in
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (error) {
-        console.error('Login error:', error);
+      if (authError) {
+        console.error('Login error:', authError);
         setLoading(false);
         return false;
       }
 
-      if (data.user) {
+      if (authData.user) {
         console.log('Login successful, checking profile...');
+        
         // Check if user profile exists and has the correct role
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role')
-          .eq('id', data.user.id)
+          .eq('id', authData.user.id)
           .single();
 
-        if (profileError || !profile) {
-          console.error('Profile not found or error:', profileError);
+        if (profileError) {
+          console.error('Profile not found:', profileError);
           await supabase.auth.signOut();
           setLoading(false);
           return false;
@@ -133,6 +138,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         console.log('Login successful with correct role');
+        // Don't set loading to false here - let the auth state change handle it
         return true;
       }
 
@@ -152,7 +158,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const redirectUrl = `${window.location.origin}/`;
       
-      const { data, error } = await supabase.auth.signUp({
+      // First, create the auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
         options: {
@@ -166,19 +173,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
 
-      if (error) {
-        console.error('Registration error:', error);
+      if (authError) {
+        console.error('Registration error:', authError);
         setLoading(false);
         return false;
       }
 
-      if (data.user) {
+      if (authData.user) {
         console.log('User created, creating profile...');
+        
         // Create user profile in profiles table
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
-            id: data.user.id,
+            id: authData.user.id,
             email: userData.email,
             name: userData.name,
             role: userData.role,
@@ -188,6 +196,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (profileError) {
           console.error('Profile creation error:', profileError);
+          // Clean up the auth user if profile creation fails
+          await supabase.auth.signOut();
           setLoading(false);
           return false;
         }
