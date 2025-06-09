@@ -37,7 +37,16 @@ const AuthPage = () => {
     if (!loginData.email || !loginData.password) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields.",
+        description: "Please enter both email and password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!loginData.email.includes('@')) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
         variant: "destructive",
       });
       return;
@@ -52,7 +61,7 @@ const AuthPage = () => {
       if (success) {
         toast({
           title: "Login successful!",
-          description: `Welcome back, ${loginData.email}`,
+          description: `Welcome back!`,
         });
         
         // Navigate based on role
@@ -67,20 +76,20 @@ const AuthPage = () => {
             navigate('/delivery');
             break;
           default:
-            navigate('/');
+            navigate('/dashboard');
         }
       } else {
         toast({
-          title: "Login failed",
-          description: "Invalid credentials or incorrect role selection. Please check your email, password, and role.",
+          title: "Login Failed",
+          description: "Invalid email, password, or role selection. Please check your credentials and ensure you're selecting the correct role.",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error('Login error:', error);
       toast({
-        title: "Login failed",
-        description: "An error occurred during login. Please try again.",
+        title: "Login Error",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -94,7 +103,16 @@ const AuthPage = () => {
     if (!registerData.name || !registerData.email || !registerData.password) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields.",
+        description: "Please fill in name, email, and password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!registerData.email.includes('@')) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
         variant: "destructive",
       });
       return;
@@ -102,7 +120,7 @@ const AuthPage = () => {
 
     if (registerData.password.length < 6) {
       toast({
-        title: "Invalid Password",
+        title: "Weak Password",
         description: "Password must be at least 6 characters long.",
         variant: "destructive",
       });
@@ -117,8 +135,8 @@ const AuthPage = () => {
       
       if (success) {
         toast({
-          title: "Registration successful!",
-          description: `Welcome to MediCare+, ${registerData.name}! You can now log in with your credentials.`,
+          title: "Registration Successful!",
+          description: `Account created successfully! You can now log in.`,
         });
         
         // Clear form and switch to login tab
@@ -131,6 +149,13 @@ const AuthPage = () => {
           role: 'user'
         });
         
+        // Auto-fill login form
+        setLoginData({
+          email: registerData.email,
+          password: '',
+          role: registerData.role
+        });
+        
         // Switch to login tab
         const loginTab = document.querySelector('[data-value="login"]') as HTMLElement;
         if (loginTab) {
@@ -138,16 +163,16 @@ const AuthPage = () => {
         }
       } else {
         toast({
-          title: "Registration failed",
-          description: "Unable to create account. Please check your information and try again.",
+          title: "Registration Failed",
+          description: "Unable to create account. This email might already be registered. Please try with a different email.",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error('Registration error:', error);
       toast({
-        title: "Registration failed",
-        description: "An error occurred during registration. Please try again.",
+        title: "Registration Error",
+        description: "An unexpected error occurred during registration. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -206,6 +231,7 @@ const AuthPage = () => {
                     onChange={(e) => setLoginData({...loginData, email: e.target.value})}
                     required
                     placeholder="Enter your email"
+                    disabled={isLoading}
                   />
                 </div>
                 
@@ -218,6 +244,7 @@ const AuthPage = () => {
                     onChange={(e) => setLoginData({...loginData, password: e.target.value})}
                     required
                     placeholder="Enter your password"
+                    disabled={isLoading}
                   />
                 </div>
                 
@@ -259,6 +286,7 @@ const AuthPage = () => {
                     onChange={(e) => setRegisterData({...registerData, name: e.target.value})}
                     required
                     placeholder="Enter your full name"
+                    disabled={isLoading}
                   />
                 </div>
                 
@@ -271,6 +299,7 @@ const AuthPage = () => {
                     onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
                     required
                     placeholder="Enter your email"
+                    disabled={isLoading}
                   />
                 </div>
                 
@@ -282,35 +311,38 @@ const AuthPage = () => {
                     value={registerData.password}
                     onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
                     required
-                    placeholder="Create a password"
+                    placeholder="Create a password (min 6 characters)"
                     minLength={6}
+                    disabled={isLoading}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="register-phone">Phone Number</Label>
+                  <Label htmlFor="register-phone">Phone Number (Optional)</Label>
                   <Input
                     id="register-phone"
                     value={registerData.phone}
                     onChange={(e) => setRegisterData({...registerData, phone: e.target.value})}
                     placeholder="Enter your phone number"
+                    disabled={isLoading}
                   />
                 </div>
                 
                 {registerData.role === 'user' && (
                   <div className="space-y-2">
-                    <Label htmlFor="register-address">Address</Label>
+                    <Label htmlFor="register-address">Address (Optional)</Label>
                     <Input
                       id="register-address"
                       value={registerData.address}
                       onChange={(e) => setRegisterData({...registerData, address: e.target.value})}
                       placeholder="Enter your address"
+                      disabled={isLoading}
                     />
                   </div>
                 )}
                 
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Registering...' : 'Register'}
+                  {isLoading ? 'Creating Account...' : 'Create Account'}
                 </Button>
               </form>
             </TabsContent>
