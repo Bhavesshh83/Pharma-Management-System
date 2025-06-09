@@ -10,9 +10,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useAuth } from '@/contexts/AuthContext';
 import { User } from '@/types';
 import { toast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('login');
   const { login, register } = useAuth();
   const navigate = useNavigate();
 
@@ -53,14 +55,14 @@ const AuthPage = () => {
     }
 
     setIsLoading(true);
-    console.log('Login form submitted with:', loginData);
+    console.log('Login form submitted with:', { ...loginData, password: '[HIDDEN]' });
     
     try {
       const result = await login(loginData.email, loginData.password, loginData.role);
       
       if (result.success) {
         toast({
-          title: "Login successful!",
+          title: "Login Successful!",
           description: "Welcome back!",
         });
         
@@ -79,6 +81,7 @@ const AuthPage = () => {
             navigate('/dashboard');
         }
       } else {
+        console.error('Login failed:', result.error);
         toast({
           title: "Login Failed",
           description: result.error || "Login failed. Please try again.",
@@ -128,16 +131,24 @@ const AuthPage = () => {
     }
 
     setIsLoading(true);
-    console.log('Register form submitted with:', registerData);
+    console.log('Register form submitted with:', { ...registerData, password: '[HIDDEN]' });
     
     try {
       const result = await register(registerData);
       
       if (result.success) {
-        toast({
-          title: "Registration Successful!",
-          description: "Account created successfully! You can now log in.",
-        });
+        if (result.error) {
+          // Success with a message (like email confirmation needed)
+          toast({
+            title: "Registration Successful!",
+            description: result.error,
+          });
+        } else {
+          toast({
+            title: "Registration Successful!",
+            description: "Account created successfully! You can now log in.",
+          });
+        }
         
         // Clear form and switch to login tab
         setRegisterData({
@@ -157,11 +168,9 @@ const AuthPage = () => {
         });
         
         // Switch to login tab
-        const loginTab = document.querySelector('[data-value="login"]') as HTMLElement;
-        if (loginTab) {
-          loginTab.click();
-        }
+        setActiveTab('login');
       } else {
+        console.error('Registration failed:', result.error);
         toast({
           title: "Registration Failed",
           description: result.error || "Registration failed. Please try again.",
@@ -188,9 +197,15 @@ const AuthPage = () => {
           <CardDescription>Your trusted medicine delivery partner</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="w-full">
+          <Alert className="mb-4">
+            <AlertDescription>
+              <strong>Development Note:</strong> If you encounter email confirmation issues, you may need to disable email confirmation in your Supabase project settings under Authentication → Settings.
+            </AlertDescription>
+          </Alert>
+          
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login" data-value="login">Login</TabsTrigger>
+              <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="register">Register</TabsTrigger>
             </TabsList>
             
