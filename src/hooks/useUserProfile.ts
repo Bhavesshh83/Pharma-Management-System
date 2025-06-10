@@ -11,9 +11,10 @@ export const useUserProfile = () => {
     try {
       console.log('Fetching profile for user:', userId);
       
+      // Optimized single query with indexed lookup
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, email, name, role, phone, address')
         .eq('id', userId)
         .single();
 

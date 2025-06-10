@@ -8,6 +8,7 @@ export const authService = {
     console.log('Attempting login for:', email, 'as role:', role);
     
     try {
+      // Single authentication call - no pre-checks
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -16,41 +17,40 @@ export const authService = {
       if (authError) {
         console.error('Login error:', authError);
         
-        if (authError.message === 'Email not confirmed') {
-          return { success: false, error: 'Please check your email and confirm your account.' };
-        }
-        if (authError.message === 'Invalid login credentials') {
-          return { success: false, error: 'Invalid email or password.' };
-        }
-        return { success: false, error: authError.message };
-      }
-
-      if (authData.user) {
-        console.log('Auth successful, checking profile...');
+        // Fast error mapping without additional lookups
+        const errorMap: Record<string, string> = {
+          'Email not confirmed': 'Please check your email and confirm your account.',
+          'Invalid login credentials': 'Invalid email or password.',
+        };
         
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', authData.user.id)
-          .single();
-
-        if (profileError || !profile) {
-          console.error('Profile check error:', profileError);
-          await supabase.auth.signOut();
-          return { success: false, error: 'User profile not found. Please contact support.' };
-        }
-
-        if (profile.role !== role) {
-          console.error('Role mismatch. Expected:', role, 'Got:', profile.role);
-          await supabase.auth.signOut();
-          return { success: false, error: `You are registered as a ${profile.role}, not a ${role}.` };
-        }
-
-        console.log('Login successful with correct role');
-        return { success: true };
+        return { 
+          success: false, 
+          error: errorMap[authError.message] || authError.message 
+        };
       }
 
-      return { success: false, error: 'Login failed. Please try again.' };
+      if (!authData.user) {
+        return { success: false, error: 'Login failed. Please try again.' };
+      }
+
+      // Use optimized database function for role check
+      const { data: userRole, error: roleError } = await supabase
+        .rpc('get_user_role', { p_user_id: authData.user.id });
+
+      if (roleError || !userRole) {
+        console.error('Role check error:', roleError);
+        await supabase.auth.signOut();
+        return { success: false, error: 'User profile not found. Please contact support.' };
+      }
+
+      if (userRole !== role) {
+        console.error('Role mismatch. Expected:', role, 'Got:', userRole);
+        await supabase.auth.signOut();
+        return { success: false, error: `You are registered as a ${userRole}, not a ${role}.` };
+      }
+
+      console.log('Login successful with correct role');
+      return { success: true };
     } catch (error) {
       console.error('Login error:', error);
       return { success: false, error: 'An unexpected error occurred. Please try again.' };
@@ -61,6 +61,7 @@ export const authService = {
     console.log('Attempting registration for:', userData.email, 'as role:', userData.role);
     
     try {
+      // Streamlined registration with optimized redirect
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -78,52 +79,56 @@ export const authService = {
       if (authError) {
         console.error('Registration auth error:', authError);
         
-        if (authError.message.includes('User already registered')) {
-          return { success: false, error: 'An account with this email already exists.' };
-        }
-        if (authError.message.includes('email_address_invalid')) {
-          return { success: false, error: 'Please enter a valid email address.' };
-        }
-        if (authError.message.includes('weak_password')) {
-          return { success: false, error: 'Password must be at least 6 characters long.' };
-        }
-        return { success: false, error: authError.message };
+        // Fast error mapping
+        const errorMap: Record<string, string> = {
+          'User already registered': 'An account with this email already exists.',
+          'email_address_invalid': 'Please enter a valid email address.',
+          'weak_password': 'Password must be at least 6 characters long.',
+        };
+        
+        const errorKey = Object.keys(errorMap).find(key => 
+          authError.message.includes(key)
+        );
+        
+        return { 
+          success: false, 
+          error: errorKey ? errorMap[errorKey] : authError.message 
+        };
       }
 
-      if (authData.user) {
-        console.log('User created successfully');
-        
-        if (!authData.session) {
-          return { 
-            success: true, 
-            error: 'Registration successful! Please check your email for confirmation.' 
-          };
-        }
-        
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: authData.user.id,
-            email: userData.email,
-            name: userData.name,
-            role: userData.role,
-            phone: userData.phone || null,
-            address: userData.address || null
-          });
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-          return { 
-            success: true, 
-            error: 'Account created but profile setup incomplete. Please try logging in.' 
-          };
-        }
-
-        console.log('Registration completed successfully');
-        return { success: true };
+      if (!authData.user) {
+        return { success: false, error: 'Registration failed. Please try again.' };
       }
 
-      return { success: false, error: 'Registration failed. Please try again.' };
+      // Check if email confirmation is required
+      if (!authData.session) {
+        return { 
+          success: true, 
+          error: 'Registration successful! Please check your email for confirmation.' 
+        };
+      }
+
+      // Use optimized database function for profile creation
+      const { data: profileCreated, error: profileError } = await supabase
+        .rpc('create_user_profile', {
+          p_user_id: authData.user.id,
+          p_email: userData.email,
+          p_name: userData.name,
+          p_role: userData.role,
+          p_phone: userData.phone || null,
+          p_address: userData.address || null
+        });
+
+      if (profileError || !profileCreated) {
+        console.error('Profile creation error:', profileError);
+        return { 
+          success: true, 
+          error: 'Account created but profile setup incomplete. Please try logging in.' 
+        };
+      }
+
+      console.log('Registration completed successfully');
+      return { success: true };
     } catch (error) {
       console.error('Registration error:', error);
       return { success: false, error: 'An unexpected error occurred during registration.' };

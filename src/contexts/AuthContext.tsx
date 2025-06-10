@@ -20,13 +20,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { user, setUser, loading, setLoading, fetchUserProfile, clearUser } = useUserProfile();
 
   useEffect(() => {
+    // Optimized auth state management with minimal overhead
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session: Session | null) => {
         console.log('Auth state changed:', event, session?.user?.email);
         
         if (session?.user) {
           console.log('User signed in, fetching profile...');
-          await fetchUserProfile(session.user.id);
+          // Use setTimeout to prevent blocking the auth state change
+          setTimeout(() => {
+            fetchUserProfile(session.user.id);
+          }, 0);
         } else {
           console.log('No user session, clearing state');
           clearUser();
@@ -34,6 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
+    // Fast initial session check
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -46,7 +51,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Initial session check:', session?.user?.email || 'No session');
         
         if (session?.user) {
-          await fetchUserProfile(session.user.id);
+          // Non-blocking profile fetch
+          setTimeout(() => {
+            fetchUserProfile(session.user.id);
+          }, 0);
         } else {
           setLoading(false);
         }
@@ -63,16 +71,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string, role: string) => {
     setLoading(true);
-    const result = await authService.login({ email, password, role } as LoginData);
-    setLoading(false);
-    return result;
+    try {
+      const result = await authService.login({ email, password, role } as LoginData);
+      return result;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const register = async (userData: RegisterData) => {
     setLoading(true);
-    const result = await authService.register(userData);
-    setLoading(false);
-    return result;
+    try {
+      const result = await authService.register(userData);
+      return result;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
