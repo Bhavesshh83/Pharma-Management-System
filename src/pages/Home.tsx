@@ -1,14 +1,18 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import MedicineCard from '@/components/Medicine/MedicineCard';
-import CategoryFilter from '@/components/Medicine/CategoryFilter';
 import { medicines } from '@/data/medicines';
 import { useAuth } from '@/contexts/AuthContext';
 import { Search, Upload, Shield, Truck, Clock, Star, Users, Award } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import LoadingSpinner from '@/components/Common/LoadingSpinner';
+
+// Lazy load components
+const CategoryFilter = lazy(() => import('@/components/Medicine/CategoryFilter'));
+const OptimizedMedicineCard = lazy(() => import('@/components/Medicine/OptimizedMedicineCard'));
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,7 +39,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Hero Section */}
+      {/* Hero Section - Optimized */}
       <section className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-green-600 text-white py-20 overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="absolute top-0 left-0 w-full h-full">
@@ -78,7 +82,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section - Optimized with memoization */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -90,52 +94,45 @@ const Home = () => {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="text-center hover:shadow-2xl transition-all duration-300 border-0 shadow-lg group hover:-translate-y-2">
-              <CardHeader className="pb-4">
-                <div className="mx-auto w-20 h-20 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Shield className="h-10 w-10 text-white" />
-                </div>
-                <CardTitle className="text-2xl font-bold text-gray-800">AI Verification</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-lg text-gray-600 leading-relaxed">
-                  Advanced AI algorithms ensure prescription accuracy and safety, preventing medication errors and drug interactions
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center hover:shadow-2xl transition-all duration-300 border-0 shadow-lg group hover:-translate-y-2">
-              <CardHeader className="pb-4">
-                <div className="mx-auto w-20 h-20 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Truck className="h-10 w-10 text-white" />
-                </div>
-                <CardTitle className="text-2xl font-bold text-gray-800">Express Delivery</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-lg text-gray-600 leading-relaxed">
-                  Lightning-fast delivery within 2-4 hours with GPS tracking, temperature-controlled transport for sensitive medicines
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center hover:shadow-2xl transition-all duration-300 border-0 shadow-lg group hover:-translate-y-2">
-              <CardHeader className="pb-4">
-                <div className="mx-auto w-20 h-20 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Clock className="h-10 w-10 text-white" />
-                </div>
-                <CardTitle className="text-2xl font-bold text-gray-800">24/7 Service</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-lg text-gray-600 leading-relaxed">
-                  Round-the-clock availability with emergency medicine support, pharmacist consultation, and instant customer service
-                </CardDescription>
-              </CardContent>
-            </Card>
+            {[
+              {
+                icon: Shield,
+                title: "AI Verification",
+                description: "Advanced AI algorithms ensure prescription accuracy and safety, preventing medication errors and drug interactions",
+                gradient: "from-green-400 to-green-600"
+              },
+              {
+                icon: Truck,
+                title: "Express Delivery",
+                description: "Lightning-fast delivery within 2-4 hours with GPS tracking, temperature-controlled transport for sensitive medicines",
+                gradient: "from-blue-400 to-blue-600"
+              },
+              {
+                icon: Clock,
+                title: "24/7 Service",
+                description: "Round-the-clock availability with emergency medicine support, pharmacist consultation, and instant customer service",
+                gradient: "from-purple-400 to-purple-600"
+              }
+            ].map((feature, index) => (
+              <Card key={index} className="text-center hover:shadow-2xl transition-all duration-300 border-0 shadow-lg group hover:-translate-y-2">
+                <CardHeader className="pb-4">
+                  <div className={`mx-auto w-20 h-20 bg-gradient-to-r ${feature.gradient} rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                    <feature.icon className="h-10 w-10 text-white" />
+                  </div>
+                  <CardTitle className="text-2xl font-bold text-gray-800">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-lg text-gray-600 leading-relaxed">
+                    {feature.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Medicine Catalog */}
+      {/* Medicine Catalog - Optimized with lazy loading */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center mb-12">
@@ -168,20 +165,35 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Category Filter */}
-          <CategoryFilter
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onCategorySelect={setSelectedCategory}
-            medicineCount={medicineCount}
-          />
+          {/* Category Filter with Suspense */}
+          <Suspense fallback={<LoadingSpinner />}>
+            <CategoryFilter
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategorySelect={setSelectedCategory}
+              medicineCount={medicineCount}
+            />
+          </Suspense>
 
-          {/* Medicine Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredMedicines.map((medicine) => (
-              <MedicineCard key={medicine.id} medicine={medicine} />
-            ))}
-          </div>
+          {/* Medicine Grid with lazy loading */}
+          <Suspense fallback={
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Card key={i} className="p-4">
+                  <Skeleton className="w-full h-48 mb-4" />
+                  <Skeleton className="h-4 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-1/2 mb-4" />
+                  <Skeleton className="h-10 w-full" />
+                </Card>
+              ))}
+            </div>
+          }>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {filteredMedicines.map((medicine) => (
+                <OptimizedMedicineCard key={medicine.id} medicine={medicine} />
+              ))}
+            </div>
+          </Suspense>
 
           {filteredMedicines.length === 0 && (
             <div className="text-center py-20">
