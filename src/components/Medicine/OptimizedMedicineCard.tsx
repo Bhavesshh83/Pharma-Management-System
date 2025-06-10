@@ -7,7 +7,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Medicine } from '@/types';
 import { toast } from '@/hooks/use-toast';
-import { ShoppingCart, Prescription } from 'lucide-react';
+import { ShoppingCart, FileText } from 'lucide-react';
 import LazyImage from '@/components/Common/LazyImage';
 
 interface MedicineCardProps {
@@ -41,6 +41,8 @@ const OptimizedMedicineCard: React.FC<MedicineCardProps> = memo(({ medicine }) =
     headache: 'bg-green-100 text-green-800',
     cough: 'bg-yellow-100 text-yellow-800',
     energy: 'bg-purple-100 text-purple-800',
+    saline: 'bg-cyan-100 text-cyan-800',
+    equipment: 'bg-gray-100 text-gray-800',
   };
 
   return (
@@ -53,7 +55,7 @@ const OptimizedMedicineCard: React.FC<MedicineCardProps> = memo(({ medicine }) =
         />
         {medicine.requires_prescription && (
           <Badge className="absolute top-3 right-3 bg-red-500 text-white">
-            <Prescription className="h-3 w-3 mr-1" />
+            <FileText className="h-3 w-3 mr-1" />
             Rx
           </Badge>
         )}
@@ -80,20 +82,22 @@ const OptimizedMedicineCard: React.FC<MedicineCardProps> = memo(({ medicine }) =
             <p className="text-xs text-gray-500">{medicine.manufacturer}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-600">Stock: {medicine.stock}</p>
-            {medicine.stock > 0 && medicine.stock <= 10 && (
-              <p className="text-xs text-orange-600 font-medium">Low Stock!</p>
+            <p className="text-sm text-gray-600">
+              {medicine.in_stock ? 'In Stock' : 'Out of Stock'}
+            </p>
+            {!medicine.in_stock && (
+              <p className="text-xs text-red-600 font-medium">Unavailable</p>
             )}
           </div>
         </div>
 
         <Button 
           onClick={handleAddToCart}
-          disabled={medicine.stock === 0}
+          disabled={!medicine.in_stock}
           className="w-full bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white font-semibold py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
         >
           <ShoppingCart className="h-4 w-4 mr-2" />
-          {medicine.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+          {medicine.in_stock ? 'Add to Cart' : 'Out of Stock'}
         </Button>
       </CardContent>
     </Card>
