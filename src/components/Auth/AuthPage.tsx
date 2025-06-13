@@ -1,94 +1,45 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuth } from '@/contexts/AuthContext';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Heart, Sparkles, Shield, Zap, Clock, Eye, EyeOff } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, User, UserCheck, Truck, Shield, Mail, Lock, Phone, MapPin, Eye, EyeOff, Sparkles } from 'lucide-react';
-
-type UserRole = 'user' | 'pharmacist' | 'delivery' | 'admin';
 
 const AuthPage = () => {
+  const { signIn, signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { login, register, user } = useAuth();
-  const navigate = useNavigate();
-
-  // Login form state
-  const [loginData, setLoginData] = useState({
+  const [formData, setFormData] = useState({
     email: '',
     password: '',
-    role: 'user' as UserRole
-  });
-
-  // Registration form state
-  const [registerData, setRegisterData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
     name: '',
     phone: '',
     address: '',
-    role: 'user' as UserRole
+    role: 'user'
   });
 
-  // Redirect if already logged in
-  React.useEffect(() => {
-    if (user) {
-      navigate('/');
-    }
-  }, [user, navigate]);
-
-  const roleIcons = {
-    user: User,
-    pharmacist: UserCheck,
-    delivery: Truck,
-    admin: Shield
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const roleColors = {
-    user: 'from-blue-500 via-blue-600 to-cyan-600',
-    pharmacist: 'from-green-500 via-green-600 to-emerald-600',
-    delivery: 'from-orange-500 via-orange-600 to-amber-600',
-    admin: 'from-purple-500 via-purple-600 to-violet-600'
-  };
-
-  const roleDescriptions = {
-    user: 'Upload prescriptions and order medicines',
-    pharmacist: 'Verify prescriptions and manage inventory',
-    delivery: 'Handle medicine deliveries',
-    admin: 'Manage platform and oversee operations'
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
-      const result = await login(loginData.email, loginData.password, loginData.role);
-      
-      if (result?.error) {
-        toast({
-          title: "Login failed",
-          description: typeof result.error === 'string' ? result.error : result.error.message || 'An error occurred',
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Welcome back!",
-          description: `Successfully logged in as ${loginData.role}`,
-        });
-        navigate('/');
-      }
-    } catch (error) {
+      await signIn(formData.email, formData.password);
       toast({
-        title: "Login failed",
-        description: "An unexpected error occurred",
+        title: "Welcome back!",
+        description: "You have been signed in successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Sign in failed",
+        description: error?.message || "Invalid credentials. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -96,55 +47,35 @@ const AuthPage = () => {
     }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (registerData.password !== registerData.confirmPassword) {
+    if (!formData.name || !formData.email || !formData.password) {
       toast({
-        title: "Password mismatch",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (registerData.password.length < 6) {
-      toast({
-        title: "Weak password",
-        description: "Password must be at least 6 characters long",
+        title: "Missing information",
+        description: "Please fill in all required fields.",
         variant: "destructive",
       });
       return;
     }
 
     setIsLoading(true);
-
     try {
-      const result = await register({
-        email: registerData.email,
-        password: registerData.password,
-        name: registerData.name,
-        phone: registerData.phone,
-        address: registerData.address,
-        role: registerData.role as UserRole
+      await signUp(
+        formData.email,
+        formData.password,
+        formData.name,
+        formData.role,
+        formData.phone,
+        formData.address
+      );
+      toast({
+        title: "Account created!",
+        description: "Welcome to MediCare+. You can now access all features.",
       });
-      
-      if (result?.error) {
-        toast({
-          title: "Registration failed",
-          description: typeof result.error === 'string' ? result.error : result.error.message || 'An error occurred',
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Registration successful!",
-          description: `Account created successfully as ${registerData.role}. Please check your email for verification.`,
-        });
-      }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Registration failed",
-        description: "An unexpected error occurred",
+        description: error?.message || "Failed to create account. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -152,247 +83,148 @@ const AuthPage = () => {
     }
   };
 
-  const RoleSelector = ({ value, onChange, roles }: { value: UserRole; onChange: (value: UserRole) => void; roles: UserRole[] }) => (
-    <div className="space-y-3">
-      <Label className="text-gray-300 font-medium">Select Your Role</Label>
-      <div className="grid grid-cols-2 gap-3">
-        {roles.map((role) => {
-          const Icon = roleIcons[role];
-          const isSelected = value === role;
-          return (
-            <button
-              key={role}
-              type="button"
-              onClick={() => onChange(role)}
-              className={`relative p-4 rounded-xl border-2 transition-all duration-300 ${
-                isSelected 
-                  ? `border-transparent bg-gradient-to-br ${roleColors[role]} shadow-lg shadow-purple-500/25` 
-                  : 'border-gray-600 bg-gray-800/50 hover:border-gray-500 hover:bg-gray-700/50'
-              }`}
-            >
-              <div className="flex flex-col items-center space-y-2">
-                <div className={`p-2 rounded-lg ${
-                  isSelected ? 'bg-white/20' : 'bg-gray-700'
-                }`}>
-                  <Icon className={`h-5 w-5 ${
-                    isSelected ? 'text-white' : 'text-gray-300'
-                  }`} />
-                </div>
-                <div className="text-center">
-                  <p className={`font-semibold capitalize text-sm ${
-                    isSelected ? 'text-white' : 'text-gray-300'
-                  }`}>
-                    {role}
-                  </p>
-                  <p className={`text-xs ${
-                    isSelected ? 'text-white/80' : 'text-gray-400'
-                  }`}>
-                    {roleDescriptions[role]}
-                  </p>
-                </div>
-              </div>
-              {isSelected && (
-                <div className="absolute top-2 right-2">
-                  <div className="w-3 h-3 bg-white rounded-full shadow-lg"></div>
-                </div>
-              )}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
       {/* Animated background elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
-        <div className="absolute bottom-20 left-40 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-3/4 right-1/4 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl animate-pulse animation-delay-300"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-32 h-32 bg-pink-500/10 rounded-full blur-3xl animate-pulse animation-delay-700"></div>
       </div>
-      
-      {/* Grid pattern overlay */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-      
-      <Card className="w-full max-w-lg relative z-10 bg-gray-800/60 backdrop-blur-xl border-gray-700/50 shadow-2xl shadow-purple-500/10">
-        <CardHeader className="text-center pb-6">
-          <div className="mx-auto w-20 h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-purple-500/25">
-            <Sparkles className="h-10 w-10 text-white" />
+
+      <div className="w-full max-w-md relative z-10">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-6">
+            <div className="p-4 bg-gradient-to-r from-purple-600/20 to-cyan-600/20 backdrop-blur-lg rounded-full border border-white/10">
+              <Heart className="h-12 w-12 text-cyan-400" />
+            </div>
           </div>
-          <CardTitle className="text-3xl font-bold text-white bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            MedConnect
-          </CardTitle>
-          <CardDescription className="text-gray-300 text-lg">
-            Your trusted healthcare platform
-          </CardDescription>
-        </CardHeader>
-        
-        <CardContent className="space-y-6">
-          <Tabs defaultValue="login" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 bg-gray-700/50 rounded-lg p-1">
-              <TabsTrigger 
-                value="login" 
-                className="text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-md transition-all duration-300"
-              >
-                Sign In
-              </TabsTrigger>
-              <TabsTrigger 
-                value="register" 
-                className="text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-md transition-all duration-300"
-              >
-                Sign Up
-              </TabsTrigger>
-            </TabsList>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent mb-4">
+            MediCare+
+          </h1>
+          <p className="text-gray-300 text-lg">Your healthcare companion</p>
+        </div>
 
-            <TabsContent value="login" className="space-y-6">
-              <form onSubmit={handleLogin} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="login-email" className="text-gray-300 font-medium">Email Address</Label>
-                  <div className="relative group">
-                    <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
+        <Card className="glass-effect border-white/10 shadow-2xl">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-2xl text-white">Welcome</CardTitle>
+            <CardDescription className="text-gray-300">
+              Sign in to your account or create a new one
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent>
+            <Tabs defaultValue="signin" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 border border-gray-700">
+                <TabsTrigger value="signin" className="text-gray-300 data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                  Sign In
+                </TabsTrigger>
+                <TabsTrigger value="signup" className="text-gray-300 data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                  Sign Up
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="signin" className="space-y-6 mt-6">
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-email" className="text-gray-300">Email</Label>
                     <Input
-                      id="login-email"
+                      id="signin-email"
                       type="email"
-                      placeholder="your@email.com"
-                      value={loginData.email}
-                      onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                      className="pl-12 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20 h-12 rounded-lg transition-all duration-300"
+                      placeholder="Enter your email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      className="bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-400"
                       required
                     />
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="login-password" className="text-gray-300 font-medium">Password</Label>
-                  <div className="relative group">
-                    <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
-                    <Input
-                      id="login-password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={loginData.password}
-                      onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                      className="pl-12 pr-12 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20 h-12 rounded-lg transition-all duration-300"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-white transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
-                  </div>
-                </div>
-
-                <RoleSelector
-                  value={loginData.role}
-                  onChange={(role) => setLoginData({ ...loginData, role })}
-                  roles={['user', 'pharmacist', 'delivery', 'admin']}
-                />
-
-                <Button
-                  type="submit"
-                  className={`w-full bg-gradient-to-r ${roleColors[loginData.role]} hover:opacity-90 transition-all duration-300 font-semibold h-12 rounded-lg shadow-lg`}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    <>
-                      <User className="mr-2 h-5 w-5" />
-                      Sign In as {loginData.role}
-                    </>
-                  )}
-                </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="register" className="space-y-5">
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                  
                   <div className="space-y-2">
-                    <Label htmlFor="register-name" className="text-gray-300 font-medium">Full Name</Label>
-                    <div className="relative group">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
+                    <Label htmlFor="signin-password" className="text-gray-300">Password</Label>
+                    <div className="relative">
                       <Input
-                        id="register-name"
-                        placeholder="John Doe"
-                        value={registerData.name}
-                        onChange={(e) => setRegisterData({ ...registerData, name: e.target.value })}
-                        className="pl-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20 rounded-lg transition-all duration-300"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="register-phone" className="text-gray-300 font-medium">Phone</Label>
-                    <div className="relative group">
-                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
-                      <Input
-                        id="register-phone"
-                        placeholder="+1234567890"
-                        value={registerData.phone}
-                        onChange={(e) => setRegisterData({ ...registerData, phone: e.target.value })}
-                        className="pl-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20 rounded-lg transition-all duration-300"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="register-email" className="text-gray-300 font-medium">Email Address</Label>
-                  <div className="relative group">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
-                    <Input
-                      id="register-email"
-                      type="email"
-                      placeholder="your@email.com"
-                      value={registerData.email}
-                      onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
-                      className="pl-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20 rounded-lg transition-all duration-300"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="register-address" className="text-gray-300 font-medium">Address</Label>
-                  <div className="relative group">
-                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
-                    <Input
-                      id="register-address"
-                      placeholder="123 Main Street, City"
-                      value={registerData.address}
-                      onChange={(e) => setRegisterData({ ...registerData, address: e.target.value })}
-                      className="pl-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20 rounded-lg transition-all duration-300"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="register-password" className="text-gray-300 font-medium">Password</Label>
-                    <div className="relative group">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
-                      <Input
-                        id="register-password"
+                        id="signin-password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        value={registerData.password}
-                        onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
-                        className="pl-10 pr-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20 rounded-lg transition-all duration-300"
+                        placeholder="Enter your password"
+                        value={formData.password}
+                        onChange={(e) => handleInputChange('password', e.target.value)}
+                        className="bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-400 pr-10"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-white transition-colors"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-semibold py-3 shadow-lg"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Signing in...
+                      </div>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Sign In
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="signup" className="space-y-6 mt-6">
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-name" className="text-gray-300">Full Name</Label>
+                    <Input
+                      id="signup-name"
+                      type="text"
+                      placeholder="Enter your full name"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      className="bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-400"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email" className="text-gray-300">Email</Label>
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      className="bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-400"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password" className="text-gray-300">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="signup-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Create a password"
+                        value={formData.password}
+                        onChange={(e) => handleInputChange('password', e.target.value)}
+                        className="bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-400 pr-10"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
@@ -400,66 +232,87 @@ const AuthPage = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="confirm-password" className="text-gray-300 font-medium">Confirm</Label>
-                    <div className="relative group">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
-                      <Input
-                        id="confirm-password"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        value={registerData.confirmPassword}
-                        onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
-                        className="pl-10 pr-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20 rounded-lg transition-all duration-300"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-white transition-colors"
-                      >
-                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
+                    <Label htmlFor="role" className="text-gray-300">Role</Label>
+                    <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)}>
+                      <SelectTrigger className="bg-gray-800/50 border-gray-600 text-white focus:border-purple-400">
+                        <SelectValue placeholder="Select your role" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="user" className="text-white hover:bg-gray-700">
+                          <div className="flex items-center">
+                            <Shield className="h-4 w-4 mr-2 text-blue-400" />
+                            Customer
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="pharmacist" className="text-white hover:bg-gray-700">
+                          <div className="flex items-center">
+                            <Zap className="h-4 w-4 mr-2 text-green-400" />
+                            Pharmacist
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="delivery" className="text-white hover:bg-gray-700">
+                          <div className="flex items-center">
+                            <Clock className="h-4 w-4 mr-2 text-yellow-400" />
+                            Delivery Partner
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="admin" className="text-white hover:bg-gray-700">
+                          <div className="flex items-center">
+                            <Heart className="h-4 w-4 mr-2 text-red-400" />
+                            Admin
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>
 
-                <RoleSelector
-                  value={registerData.role}
-                  onChange={(role) => setRegisterData({ ...registerData, role })}
-                  roles={['user', 'pharmacist', 'delivery', 'admin']}
-                />
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-phone" className="text-gray-300">Phone (Optional)</Label>
+                    <Input
+                      id="signup-phone"
+                      type="tel"
+                      placeholder="Enter your phone number"
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      className="bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-400"
+                    />
+                  </div>
 
-                <Button
-                  type="submit"
-                  className={`w-full bg-gradient-to-r ${roleColors[registerData.role]} hover:opacity-90 transition-all duration-300 font-semibold h-12 rounded-lg shadow-lg`}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Creating account...
-                    </>
-                  ) : (
-                    <>
-                      <UserCheck className="mr-2 h-5 w-5" />
-                      Create {registerData.role} Account
-                    </>
-                  )}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-address" className="text-gray-300">Address (Optional)</Label>
+                    <Input
+                      id="signup-address"
+                      type="text"
+                      placeholder="Enter your address"
+                      value={formData.address}
+                      onChange={(e) => handleInputChange('address', e.target.value)}
+                      className="bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-400 focus:border-purple-400"
+                    />
+                  </div>
 
-          <div className="mt-8 text-center">
-            <p className="text-xs text-gray-400">
-              By signing in, you agree to our{' '}
-              <span className="text-purple-400 hover:text-purple-300 cursor-pointer">terms of service</span>
-              {' '}and{' '}
-              <span className="text-purple-400 hover:text-purple-300 cursor-pointer">privacy policy</span>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-semibold py-3 shadow-lg"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Creating account...
+                      </div>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Create Account
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
