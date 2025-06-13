@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, User, UserCheck, Truck, Shield, Mail, Lock, Phone, MapPin, Eye, EyeOff, Sparkles } from 'lucide-react';
+
+type UserRole = 'user' | 'pharmacist' | 'delivery' | 'admin';
 
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +23,7 @@ const AuthPage = () => {
   const [loginData, setLoginData] = useState({
     email: '',
     password: '',
-    role: 'user'
+    role: 'user' as UserRole
   });
 
   // Registration form state
@@ -33,7 +34,7 @@ const AuthPage = () => {
     name: '',
     phone: '',
     address: '',
-    role: 'user'
+    role: 'user' as UserRole
   });
 
   // Redirect if already logged in
@@ -71,10 +72,10 @@ const AuthPage = () => {
     try {
       const result = await login(loginData.email, loginData.password, loginData.role);
       
-      if (result.error) {
+      if (result?.error) {
         toast({
           title: "Login failed",
-          description: result.error.message,
+          description: typeof result.error === 'string' ? result.error : result.error.message || 'An error occurred',
           variant: "destructive",
         });
       } else {
@@ -125,13 +126,13 @@ const AuthPage = () => {
         name: registerData.name,
         phone: registerData.phone,
         address: registerData.address,
-        role: registerData.role
+        role: registerData.role as UserRole
       });
       
-      if (result.error) {
+      if (result?.error) {
         toast({
           title: "Registration failed",
-          description: result.error.message,
+          description: typeof result.error === 'string' ? result.error : result.error.message || 'An error occurred',
           variant: "destructive",
         });
       } else {
@@ -151,12 +152,12 @@ const AuthPage = () => {
     }
   };
 
-  const RoleSelector = ({ value, onChange, roles }: { value: string; onChange: (value: string) => void; roles: string[] }) => (
+  const RoleSelector = ({ value, onChange, roles }: { value: UserRole; onChange: (value: UserRole) => void; roles: UserRole[] }) => (
     <div className="space-y-3">
       <Label className="text-gray-300 font-medium">Select Your Role</Label>
       <div className="grid grid-cols-2 gap-3">
         {roles.map((role) => {
-          const Icon = roleIcons[role as keyof typeof roleIcons];
+          const Icon = roleIcons[role];
           const isSelected = value === role;
           return (
             <button
@@ -165,7 +166,7 @@ const AuthPage = () => {
               onClick={() => onChange(role)}
               className={`relative p-4 rounded-xl border-2 transition-all duration-300 ${
                 isSelected 
-                  ? `border-transparent bg-gradient-to-br ${roleColors[role as keyof typeof roleColors]} shadow-lg shadow-purple-500/25` 
+                  ? `border-transparent bg-gradient-to-br ${roleColors[role]} shadow-lg shadow-purple-500/25` 
                   : 'border-gray-600 bg-gray-800/50 hover:border-gray-500 hover:bg-gray-700/50'
               }`}
             >
@@ -186,7 +187,7 @@ const AuthPage = () => {
                   <p className={`text-xs ${
                     isSelected ? 'text-white/80' : 'text-gray-400'
                   }`}>
-                    {roleDescriptions[role as keyof typeof roleDescriptions]}
+                    {roleDescriptions[role]}
                   </p>
                 </div>
               </div>
@@ -293,7 +294,7 @@ const AuthPage = () => {
 
                 <Button
                   type="submit"
-                  className={`w-full bg-gradient-to-r ${roleColors[loginData.role as keyof typeof roleColors]} hover:opacity-90 transition-all duration-300 font-semibold h-12 rounded-lg shadow-lg`}
+                  className={`w-full bg-gradient-to-r ${roleColors[loginData.role]} hover:opacity-90 transition-all duration-300 font-semibold h-12 rounded-lg shadow-lg`}
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -430,7 +431,7 @@ const AuthPage = () => {
 
                 <Button
                   type="submit"
-                  className={`w-full bg-gradient-to-r ${roleColors[registerData.role as keyof typeof roleColors]} hover:opacity-90 transition-all duration-300 font-semibold h-12 rounded-lg shadow-lg`}
+                  className={`w-full bg-gradient-to-r ${roleColors[registerData.role]} hover:opacity-90 transition-all duration-300 font-semibold h-12 rounded-lg shadow-lg`}
                   disabled={isLoading}
                 >
                   {isLoading ? (
