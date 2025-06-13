@@ -29,8 +29,12 @@ export const extractPrescriptionData = async (imageFile: File): Promise<Prescrip
     // Parse the extracted text to find relevant information
     const parsedData = parsePrescriptionText(text);
     
+    console.log('Parsed medicines:', parsedData.medicines);
+    
     // Search for medicine matches in database
     const medicineMatches = await searchMedicinesInDatabase(parsedData.medicines);
+    
+    console.log('Medicine matches found:', medicineMatches.length);
     
     // Save prescription to database for tracking
     const imageUrl = URL.createObjectURL(imageFile); // In production, upload to Supabase Storage
@@ -69,28 +73,36 @@ const parsePrescriptionText = (text: string): Omit<PrescriptionData, 'rawText' |
   let patientName = '';
   const medicines: string[] = [];
 
-  // Common patterns for doctor names
+  // Enhanced patterns for doctor names
   const doctorPatterns = [
-    /dr\.?\s+([a-zA-Z\s]+)/i,
-    /doctor\s+([a-zA-Z\s]+)/i,
-    /physician\s+([a-zA-Z\s]+)/i
+    /dr\.?\s+([a-zA-Z\s\.]{3,30})/i,
+    /doctor\s+([a-zA-Z\s\.]{3,30})/i,
+    /physician\s+([a-zA-Z\s\.]{3,30})/i,
+    /([a-zA-Z\s\.]{3,30})\s*,?\s*m\.?d\.?/i,
+    /([a-zA-Z\s\.]{3,30})\s*,?\s*mbbs/i
   ];
 
-  // Common patterns for patient names
+  // Enhanced patterns for patient names
   const patientPatterns = [
-    /patient\s*:?\s*([a-zA-Z\s]+)/i,
-    /name\s*:?\s*([a-zA-Z\s]+)/i,
-    /mr\.?\s+([a-zA-Z\s]+)/i,
-    /mrs\.?\s+([a-zA-Z\s]+)/i,
-    /ms\.?\s+([a-zA-Z\s]+)/i
+    /patient\s*:?\s*([a-zA-Z\s\.]{3,30})/i,
+    /name\s*:?\s*([a-zA-Z\s\.]{3,30})/i,
+    /mr\.?\s*([a-zA-Z\s\.]{3,30})/i,
+    /mrs\.?\s*([a-zA-Z\s\.]{3,30})/i,
+    /ms\.?\s*([a-zA-Z\s\.]{3,30})/i,
+    /patient.*?([a-zA-Z\s\.]{3,30})/i
   ];
 
-  // Enhanced medicine keywords and patterns
+  // Enhanced medicine detection with common patterns
   const medicineKeywords = [
-    'tablet', 'capsule', 'syrup', 'injection', 'drops', 'cream', 'ointment',
-    'paracetamol', 'aspirin', 'ibuprofen', 'amoxicillin', 'azithromycin',
-    'metformin', 'omeprazole', 'cetirizine', 'ranitidine', 'diclofenac',
-    'mg', 'ml', 'gm', 'twice daily', 'once daily', 'thrice daily', 'bd', 'od', 'tid'
+    'tablet', 'tab', 'capsule', 'cap', 'syrup', 'injection', 'inj', 'drops', 'cream', 'ointment',
+    'paracetamol', 'acetaminophen', 'aspirin', 'ibuprofen', 'amoxicillin', 'azithromycin',
+    'metformin', 'omeprazole', 'cetirizine', 'ranitidine', 'diclofenac', 'prednisolone',
+    'amlodipine', 'lisinopril', 'losartan', 'atenolol', 'sertraline', 'fluoxetine',
+    'atorvastatin', 'simvastatin', 'levothyroxine', 'warfarin', 'insulin', 'albuterol',
+    'mg', 'ml', 'gm', 'mcg', 'twice daily', 'once daily', 'thrice daily', 'bd', 'od', 'tid',
+    'dolo', 'crocin', 'combiflam', 'azee', 'augmentin', 'brufen', 'voltaren', 'zyrtec',
+    'prilosec', 'glucophage', 'norvasc', 'zestril', 'cozaar', 'tenormin', 'zoloft', 'prozac',
+    'lipitor', 'zocor', 'synthroid', 'coumadin', 'lantus', 'ventolin'
   ];
 
   // Extract doctor name
@@ -98,7 +110,7 @@ const parsePrescriptionText = (text: string): Omit<PrescriptionData, 'rawText' |
     for (const pattern of doctorPatterns) {
       const match = line.match(pattern);
       if (match && match[1]) {
-        doctorName = match[1].trim();
+        doctorName = match[1].trim().replace(/[.,]+$/, '');
         break;
       }
     }
@@ -110,49 +122,88 @@ const parsePrescriptionText = (text: string): Omit<PrescriptionData, 'rawText' |
     for (const pattern of patientPatterns) {
       const match = line.match(pattern);
       if (match && match[1]) {
-        patientName = match[1].trim();
+        patientName = match[1].trim().replace(/[.,]+$/, '');
         break;
       }
     }
     if (patientName) break;
   }
 
-  // Extract medicines with improved detection
+  // Enhanced medicine extraction with multiple approaches
   for (const line of lines) {
     const lowerLine = line.toLowerCase();
     
-    // Check if line contains medicine-related keywords
+    // Approach 1: Check if line contains medicine-related keywords
     const containsMedicineKeyword = medicineKeywords.some(keyword => 
       lowerLine.includes(keyword.toLowerCase())
     );
     
-    // Also check for common medicine name patterns
-    const medicinePattern = /^[0-9]*\.?\s*([a-zA-Z]+(?:\s+[a-zA-Z]+)*)\s*(?:\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg))?/i;
-    const medicineMatch = line.match(medicinePattern);
+    // Approach 2: Pattern matching for common medicine formats
+    const medicinePatterns = [
+      // Pattern: Number. Medicine Name dosage
+      /^\s*\d+\.?\s*([a-zA-Z][a-zA-Z\s]{2,25})(?:\s+\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg))?/i,
+      // Pattern: Medicine Name followed by dosage
+      /([a-zA-Z][a-zA-Z\s]{2,25})\s+\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg)/i,
+      // Pattern: Common medicine brand names
+      /(paracetamol|acetaminophen|ibuprofen|aspirin|amoxicillin|azithromycin|metformin|omeprazole|cetirizine|diclofenac|amlodipine|lisinopril|atorvastatin|levothyroxine|dolo|crocin|combiflam|azee)/i
+    ];
     
-    if ((containsMedicineKeyword || medicineMatch) && line.trim().length > 3) {
-      // Clean and format the medicine name
-      let cleanedMedicine = line.trim()
-        .replace(/^\d+\.?\s*/, '') // Remove numbering
-        .replace(/\s+/g, ' ') // Normalize spaces
-        .replace(/\s*-\s*.*$/, '') // Remove dosage instructions after dash
-        .trim();
+    // Approach 3: Look for lines that start with capital letter and contain medicine-like words
+    const startsWithCapitalPattern = /^[A-Z][a-zA-Z\s]{2,25}(?:\s+\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg))?/;
+    
+    if (containsMedicineKeyword || startsWithCapitalPattern.test(line)) {
+      // Try to extract medicine name using patterns
+      let extractedMedicine = '';
       
-      // Extract just the medicine name part if it contains dosage
-      const nameMatch = cleanedMedicine.match(/^([a-zA-Z\s]+?)(?:\s+\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg))?/i);
-      if (nameMatch && nameMatch[1]) {
-        cleanedMedicine = nameMatch[1].trim();
+      for (const pattern of medicinePatterns) {
+        const match = line.match(pattern);
+        if (match && match[1]) {
+          extractedMedicine = match[1].trim();
+          break;
+        }
       }
       
-      if (cleanedMedicine.length > 3 && !medicines.includes(cleanedMedicine)) {
-        medicines.push(cleanedMedicine);
+      // If no pattern matches, use the whole line (cleaned)
+      if (!extractedMedicine && line.trim().length > 3 && line.trim().length < 50) {
+        extractedMedicine = line.trim()
+          .replace(/^\d+\.?\s*/, '') // Remove numbering
+          .replace(/\s*-\s*.*$/, '') // Remove instructions after dash
+          .replace(/\s+/g, ' ') // Normalize spaces
+          .trim();
+      }
+      
+      // Clean and validate the extracted medicine name
+      if (extractedMedicine) {
+        // Remove common non-medicine words
+        const nonMedicineWords = ['take', 'daily', 'morning', 'evening', 'after', 'before', 'meal', 'food', 'water', 'times', 'days', 'weeks'];
+        const words = extractedMedicine.toLowerCase().split(/\s+/);
+        const cleanWords = words.filter(word => !nonMedicineWords.includes(word) && word.length > 2);
+        
+        if (cleanWords.length > 0) {
+          const cleanedMedicine = cleanWords.join(' ');
+          
+          // Final validation: must be at least 3 characters and not already in the list
+          if (cleanedMedicine.length >= 3 && !medicines.includes(cleanedMedicine)) {
+            medicines.push(cleanedMedicine);
+          }
+        }
       }
     }
   }
 
+  // Additional fallback: scan for any word that matches known medicine patterns
+  const allText = text.toLowerCase();
+  for (const keyword of medicineKeywords) {
+    if (allText.includes(keyword) && keyword.length > 3 && !medicines.some(m => m.toLowerCase().includes(keyword))) {
+      medicines.push(keyword);
+    }
+  }
+
+  console.log('Final extracted medicines:', medicines);
+
   return {
     doctorName: doctorName || 'Not detected',
     patientName: patientName || 'Not detected',
-    medicines: medicines.slice(0, 10) // Limit to 10 medicines
+    medicines: medicines.slice(0, 15) // Limit to 15 medicines
   };
 };

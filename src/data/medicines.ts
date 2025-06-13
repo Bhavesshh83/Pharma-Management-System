@@ -2,787 +2,573 @@
 import { Medicine } from '@/types';
 
 export const medicines: Medicine[] = [
-  // Basic Medicines
+  // Antibiotics - Common prescription medicines
   {
     id: '1',
-    name: 'Paracetamol 500mg',
+    name: 'Amoxicillin',
+    description: 'Broad-spectrum antibiotic for bacterial infections',
+    price: 85,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'GSK',
+    rxnorm_code: '723'
+  },
+  {
+    id: '2',
+    name: 'Azithromycin',
+    description: 'Macrolide antibiotic for respiratory infections',
+    price: 125,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Pfizer',
+    rxnorm_code: '18631'
+  },
+  {
+    id: '3',
+    name: 'Ciprofloxacin',
+    description: 'Fluoroquinolone antibiotic for UTI and other infections',
+    price: 115,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Bayer',
+    rxnorm_code: '2551'
+  },
+  {
+    id: '4',
+    name: 'Cephalexin',
+    description: 'First-generation cephalosporin antibiotic',
+    price: 95,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Teva',
+    rxnorm_code: '2176'
+  },
+  {
+    id: '5',
+    name: 'Doxycycline',
+    description: 'Tetracycline antibiotic for various infections',
+    price: 105,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Pfizer',
+    rxnorm_code: '3640'
+  },
+
+  // Pain Relief & Anti-inflammatory
+  {
+    id: '6',
+    name: 'Paracetamol',
     description: 'Pain reliever and fever reducer',
     price: 25,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=200&fit=crop',
     requires_prescription: false,
     in_stock: true,
-    manufacturer: 'Generic Pharma'
+    manufacturer: 'Generic',
+    rxnorm_code: '161'
   },
   {
-    id: '2',
-    name: 'Dolo 650mg',
-    description: 'Paracetamol for fever and pain relief',
-    price: 45,
+    id: '7',
+    name: 'Acetaminophen',
+    description: 'Pain reliever and fever reducer (same as Paracetamol)',
+    price: 28,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
     requires_prescription: false,
     in_stock: true,
-    manufacturer: 'Micro Labs'
+    manufacturer: 'Tylenol',
+    rxnorm_code: '161'
   },
   {
-    id: '3',
-    name: 'Aspirin 300mg',
+    id: '8',
+    name: 'Ibuprofen',
+    description: 'Anti-inflammatory pain reliever',
+    price: 55,
+    category: 'basic',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop',
+    requires_prescription: false,
+    in_stock: true,
+    manufacturer: 'Advil',
+    rxnorm_code: '5640'
+  },
+  {
+    id: '9',
+    name: 'Aspirin',
     description: 'Pain relief and anti-inflammatory',
     price: 30,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
     requires_prescription: false,
     in_stock: true,
-    manufacturer: 'Bayer'
-  },
-  {
-    id: '4',
-    name: 'Ibuprofen 400mg',
-    description: 'Anti-inflammatory and pain reliever',
-    price: 55,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Abbott'
-  },
-  {
-    id: '5',
-    name: 'Crocin Advance',
-    description: 'Fast acting fever and pain relief',
-    price: 35,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'GSK'
-  },
-  {
-    id: '6',
-    name: 'Diclofenac Sodium 50mg',
-    description: 'Anti-inflammatory pain reliever',
-    price: 65,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1512069772995-ec65bbf3d571?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Novartis'
-  },
-  {
-    id: '7',
-    name: 'Cetirizine 10mg',
-    description: 'Antihistamine for allergies',
-    price: 35,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'UCB Pharma'
-  },
-  {
-    id: '8',
-    name: 'Loperamide 2mg',
-    description: 'Anti-diarrheal medication',
-    price: 45,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Johnson & Johnson'
-  },
-  
-  // Headache Medicines
-  {
-    id: '9',
-    name: 'Saridon Advanced',
-    description: 'Fast relief from headache',
-    price: 35,
-    category: 'headache',
-    image: 'https://images.unsplash.com/photo-1563213126-a4273aed2016?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Piramal Healthcare'
+    manufacturer: 'Bayer',
+    rxnorm_code: '1191'
   },
   {
     id: '10',
-    name: 'Anacin Extra',
-    description: 'Relief from severe headaches',
-    price: 28,
-    category: 'headache',
-    image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&h=200&fit=crop',
-    requires_prescription: false,
+    name: 'Diclofenac',
+    description: 'Non-steroidal anti-inflammatory drug',
+    price: 65,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1512069772995-ec65bbf3d571?w=300&h=200&fit=crop',
+    requires_prescription: true,
     in_stock: true,
-    manufacturer: 'Pfizer'
+    manufacturer: 'Novartis',
+    rxnorm_code: '3355'
   },
+
+  // Diabetes Medications
   {
     id: '11',
-    name: 'Combiflam',
-    description: 'For headache and body pain',
-    price: 42,
-    category: 'headache',
-    image: 'https://images.unsplash.com/photo-1512069772995-ec65bbf3d571?w=300&h=200&fit=crop',
-    requires_prescription: false,
+    name: 'Metformin',
+    description: 'Type 2 diabetes medication',
+    price: 45,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=200&fit=crop',
+    requires_prescription: true,
     in_stock: true,
-    manufacturer: 'Sanofi'
+    manufacturer: 'Bristol Myers',
+    rxnorm_code: '6809'
   },
   {
     id: '12',
-    name: 'Disprin Regular',
-    description: 'Quick headache relief',
-    price: 18,
-    category: 'headache',
-    image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
-    requires_prescription: false,
+    name: 'Insulin',
+    description: 'Hormone for diabetes management',
+    price: 850,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=300&h=200&fit=crop',
+    requires_prescription: true,
     in_stock: true,
-    manufacturer: 'Reckitt Benckiser'
+    manufacturer: 'Novo Nordisk',
+    rxnorm_code: '5856'
   },
   {
     id: '13',
-    name: 'Excedrin Migraine',
-    description: 'Migraine specific relief',
-    price: 65,
-    category: 'headache',
-    image: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=300&h=200&fit=crop',
-    requires_prescription: false,
+    name: 'Glipizide',
+    description: 'Sulfonylurea for type 2 diabetes',
+    price: 75,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
+    requires_prescription: true,
     in_stock: true,
-    manufacturer: 'Haleon'
+    manufacturer: 'Pfizer',
+    rxnorm_code: '4821'
   },
+
+  // Blood Pressure Medications
   {
     id: '14',
-    name: 'Sumatriptan 50mg',
-    description: 'Prescription migraine treatment',
-    price: 85,
-    category: 'headache',
-    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=300&h=200&fit=crop',
+    name: 'Amlodipine',
+    description: 'Calcium channel blocker for hypertension',
+    price: 65,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop',
     requires_prescription: true,
     in_stock: true,
-    manufacturer: 'GSK'
+    manufacturer: 'Pfizer',
+    rxnorm_code: '17767'
   },
-  
-  // Cough and Cold Medicines
   {
     id: '15',
-    name: 'Benadryl Cough Syrup',
-    description: 'Dry cough relief syrup',
-    price: 85,
-    category: 'cough',
-    image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Johnson & Johnson'
-  },
-  {
-    id: '16',
-    name: 'Honitus Cough Drops',
-    description: 'Herbal cough drops',
-    price: 15,
-    category: 'cough',
-    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Dabur'
-  },
-  {
-    id: '17',
-    name: 'Vicks Cough Drops',
-    description: 'Menthol based cough relief',
-    price: 12,
-    category: 'cough',
-    image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Procter & Gamble'
-  },
-  {
-    id: '18',
-    name: 'Ascoril LS Syrup',
-    description: 'Productive cough relief',
-    price: 95,
-    category: 'cough',
-    image: 'https://images.unsplash.com/photo-1585435557343-3b092031d637?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Glenmark'
-  },
-  {
-    id: '19',
-    name: 'Alex Cough Syrup',
-    description: 'Relief from wet and dry cough',
-    price: 78,
-    category: 'cough',
-    image: 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Ranbaxy'
-  },
-  {
-    id: '20',
-    name: 'Strepsils Lozenges',
-    description: 'Sore throat and cough relief',
-    price: 25,
-    category: 'cough',
-    image: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Reckitt Benckiser'
-  },
-  {
-    id: '21',
-    name: 'Vicks VapoRub',
-    description: 'Topical cough suppressant',
-    price: 55,
-    category: 'cough',
-    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Procter & Gamble'
-  },
-  {
-    id: '22',
-    name: 'Sinarest Tablet',
-    description: 'Cold and sinus relief',
-    price: 45,
-    category: 'cough',
-    image: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Centaur Pharma'
-  },
-  {
-    id: '23',
-    name: 'Coldact Capsule',
-    description: 'Multi-symptom cold relief',
-    price: 38,
-    category: 'cough',
-    image: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Sanofi'
-  },
-  {
-    id: '24',
-    name: 'Otrivin Nasal Spray',
-    description: 'Nasal congestion relief',
-    price: 125,
-    category: 'cough',
-    image: 'https://images.unsplash.com/photo-1562736537-cec2d03fa71c?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Novartis'
-  },
-  
-  // Energy and Hydration Products
-  {
-    id: '25',
-    name: 'Electral Powder',
-    description: 'Oral rehydration salts',
-    price: 25,
-    category: 'energy',
-    image: 'https://images.unsplash.com/photo-1562736537-cec2d03fa71c?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'FDC Limited'
-  },
-  {
-    id: '26',
-    name: 'ORS Solution',
-    description: 'World Health Organization formula',
-    price: 20,
-    category: 'energy',
-    image: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Cipla'
-  },
-  {
-    id: '27',
-    name: 'Glucon-D Orange',
-    description: 'Energy drink powder with vitamin D',
-    price: 55,
-    category: 'energy',
-    image: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Heinz India'
-  },
-  {
-    id: '28',
-    name: 'Enerzal Powder',
-    description: 'Instant energy and electrolyte replacement',
-    price: 45,
-    category: 'energy',
-    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Raptakos Brett'
-  },
-  {
-    id: '29',
-    name: 'B-Complex Tablets',
-    description: 'Vitamin B complex for energy',
-    price: 85,
-    category: 'energy',
-    image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Mankind Pharma'
-  },
-  {
-    id: '30',
-    name: 'Revital H Capsules',
-    description: 'Daily health supplement',
-    price: 125,
-    category: 'energy',
-    image: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Ranbaxy'
-  },
-  {
-    id: '31',
-    name: 'Vitamin C 500mg',
-    description: 'Immune system support',
-    price: 75,
-    category: 'energy',
-    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Nature Made'
-  },
-  {
-    id: '32',
-    name: 'Vitamin D3 1000 IU',
-    description: 'Bone health and immunity',
-    price: 95,
-    category: 'energy',
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Sun Pharma'
-  },
-  {
-    id: '33',
-    name: 'Multivitamin Tablets',
-    description: 'Complete daily nutrition',
-    price: 145,
-    category: 'energy',
-    image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Centrum'
-  },
-  {
-    id: '34',
-    name: 'Iron Tablets 65mg',
-    description: 'Iron deficiency anemia treatment',
-    price: 65,
-    category: 'energy',
-    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Abbott'
-  },
-  {
-    id: '35',
-    name: 'Calcium + D3 Tablets',
-    description: 'Bone strength and health',
-    price: 115,
-    category: 'energy',
-    image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Cipla'
-  },
-  
-  // Prescription Medicines
-  {
-    id: '36',
-    name: 'Azithromycin 500mg',
-    description: 'Antibiotic for bacterial infections',
-    price: 125,
-    category: 'prescription',
-    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=300&h=200&fit=crop',
-    requires_prescription: true,
-    in_stock: true,
-    manufacturer: 'Sun Pharma'
-  },
-  {
-    id: '37',
-    name: 'Metformin 500mg',
-    description: 'Diabetes medication',
-    price: 45,
-    category: 'prescription',
-    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=200&fit=crop',
-    requires_prescription: true,
-    in_stock: true,
-    manufacturer: 'Lupin'
-  },
-  {
-    id: '38',
-    name: 'Amoxicillin 250mg',
-    description: 'Broad-spectrum antibiotic',
-    price: 85,
-    category: 'prescription',
-    image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&h=200&fit=crop',
-    requires_prescription: true,
-    in_stock: true,
-    manufacturer: 'Ranbaxy'
-  },
-  {
-    id: '39',
-    name: 'Atorvastatin 20mg',
-    description: 'Cholesterol lowering medication',
-    price: 95,
-    category: 'prescription',
-    image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
-    requires_prescription: true,
-    in_stock: true,
-    manufacturer: 'Pfizer'
-  },
-  {
-    id: '40',
-    name: 'Amlodipine 5mg',
-    description: 'Blood pressure medication',
-    price: 65,
-    category: 'prescription',
-    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop',
-    requires_prescription: true,
-    in_stock: true,
-    manufacturer: 'Cipla'
-  },
-  {
-    id: '41',
-    name: 'Omeprazole 20mg',
-    description: 'Acid reflux and ulcer treatment',
-    price: 55,
-    category: 'prescription',
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
-    requires_prescription: true,
-    in_stock: true,
-    manufacturer: 'Dr. Reddy\'s'
-  },
-  {
-    id: '42',
-    name: 'Losartan 50mg',
-    description: 'Hypertension medication',
-    price: 75,
-    category: 'prescription',
-    image: 'https://images.unsplash.com/photo-1512069772995-ec65bbf3d571?w=300&h=200&fit=crop',
-    requires_prescription: true,
-    in_stock: true,
-    manufacturer: 'Merck'
-  },
-  {
-    id: '43',
-    name: 'Ciprofloxacin 500mg',
-    description: 'Fluoroquinolone antibiotic',
-    price: 115,
-    category: 'prescription',
-    image: 'https://images.unsplash.com/photo-1563213126-a4273aed2016?w=300&h=200&fit=crop',
-    requires_prescription: true,
-    in_stock: true,
-    manufacturer: 'Bayer'
-  },
-  {
-    id: '44',
-    name: 'Prednisolone 10mg',
-    description: 'Corticosteroid for inflammation',
-    price: 65,
-    category: 'prescription',
-    image: 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=300&h=200&fit=crop',
-    requires_prescription: true,
-    in_stock: true,
-    manufacturer: 'Wyeth'
-  },
-  {
-    id: '45',
-    name: 'Lisinopril 10mg',
+    name: 'Lisinopril',
     description: 'ACE inhibitor for blood pressure',
     price: 85,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1585435557343-3b092031d637?w=300&h=200&fit=crop',
     requires_prescription: true,
     in_stock: true,
-    manufacturer: 'Prinivil'
+    manufacturer: 'Merck',
+    rxnorm_code: '29046'
   },
   {
-    id: '46',
-    name: 'Warfarin 5mg',
-    description: 'Blood thinner medication',
-    price: 105,
+    id: '16',
+    name: 'Losartan',
+    description: 'ARB for hypertension',
+    price: 75,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1512069772995-ec65bbf3d571?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Merck',
+    rxnorm_code: '52175'
+  },
+  {
+    id: '17',
+    name: 'Atenolol',
+    description: 'Beta-blocker for hypertension',
+    price: 55,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'AstraZeneca',
+    rxnorm_code: '1202'
+  },
+
+  // Respiratory Medications
+  {
+    id: '18',
+    name: 'Albuterol',
+    description: 'Bronchodilator inhaler for asthma',
+    price: 145,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=300&h=200&fit=crop',
     requires_prescription: true,
     in_stock: true,
-    manufacturer: 'Bristol Myers'
+    manufacturer: 'GSK',
+    rxnorm_code: '435'
   },
   {
-    id: '47',
-    name: 'Insulin Glargine',
-    description: 'Long-acting diabetes insulin',
-    price: 850,
+    id: '19',
+    name: 'Prednisolone',
+    description: 'Corticosteroid for inflammation',
+    price: 65,
     category: 'prescription',
-    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=300&h=200&fit=crop',
+    image: 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=300&h=200&fit=crop',
     requires_prescription: true,
     in_stock: true,
-    manufacturer: 'Sanofi'
+    manufacturer: 'Pfizer',
+    rxnorm_code: '8640'
   },
   {
-    id: '48',
-    name: 'Levothyroxine 50mcg',
+    id: '20',
+    name: 'Cetirizine',
+    description: 'Antihistamine for allergies',
+    price: 35,
+    category: 'basic',
+    image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&h=200&fit=crop',
+    requires_prescription: false,
+    in_stock: true,
+    manufacturer: 'UCB',
+    rxnorm_code: '1998'
+  },
+
+  // Gastrointestinal Medications
+  {
+    id: '21',
+    name: 'Omeprazole',
+    description: 'Proton pump inhibitor for acid reflux',
+    price: 55,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'AstraZeneca',
+    rxnorm_code: '7646'
+  },
+  {
+    id: '22',
+    name: 'Ranitidine',
+    description: 'H2 receptor antagonist for heartburn',
+    price: 35,
+    category: 'basic',
+    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
+    requires_prescription: false,
+    in_stock: true,
+    manufacturer: 'GSK',
+    rxnorm_code: '9143'
+  },
+  {
+    id: '23',
+    name: 'Pantoprazole',
+    description: 'Proton pump inhibitor',
+    price: 68,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Wyeth',
+    rxnorm_code: '40790'
+  },
+
+  // Mental Health Medications
+  {
+    id: '24',
+    name: 'Sertraline',
+    description: 'SSRI antidepressant',
+    price: 95,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Pfizer',
+    rxnorm_code: '36437'
+  },
+  {
+    id: '25',
+    name: 'Fluoxetine',
+    description: 'SSRI antidepressant (Prozac)',
+    price: 85,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Eli Lilly',
+    rxnorm_code: '4493'
+  },
+  {
+    id: '26',
+    name: 'Lorazepam',
+    description: 'Benzodiazepine for anxiety',
+    price: 75,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Wyeth',
+    rxnorm_code: '6470'
+  },
+
+  // Cholesterol Medications
+  {
+    id: '27',
+    name: 'Atorvastatin',
+    description: 'Statin for cholesterol management',
+    price: 95,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Pfizer',
+    rxnorm_code: '83367'
+  },
+  {
+    id: '28',
+    name: 'Simvastatin',
+    description: 'Statin for high cholesterol',
+    price: 85,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Merck',
+    rxnorm_code: '36567'
+  },
+
+  // Thyroid Medications
+  {
+    id: '29',
+    name: 'Levothyroxine',
     description: 'Thyroid hormone replacement',
     price: 75,
     category: 'prescription',
     image: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&h=200&fit=crop',
     requires_prescription: true,
     in_stock: true,
-    manufacturer: 'Abbott'
+    manufacturer: 'Abbott',
+    rxnorm_code: '10582'
   },
-  
-  // Salines and IV Solutions
+
+  // Anti-seizure Medications
   {
-    id: '49',
-    name: 'Normal Saline 500ml',
-    description: '0.9% Sodium Chloride IV solution',
-    price: 45,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Baxter'
-  },
-  {
-    id: '50',
-    name: 'Dextrose Saline 500ml',
-    description: '5% Dextrose in Normal Saline',
-    price: 55,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Fresenius Kabi'
-  },
-  {
-    id: '51',
-    name: 'Ringer Lactate 500ml',
-    description: 'Balanced electrolyte solution',
-    price: 50,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'B. Braun'
-  },
-  {
-    id: '52',
-    name: 'DNS 500ml',
-    description: '5% Dextrose in Normal Saline',
-    price: 48,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Otsuka'
-  },
-  {
-    id: '53',
-    name: 'Saline Nasal Drops',
-    description: 'Natural nasal congestion relief',
-    price: 35,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Ayr'
-  },
-  {
-    id: '54',
-    name: 'Mannitol 20% 100ml',
-    description: 'Osmotic diuretic solution',
+    id: '30',
+    name: 'Phenytoin',
+    description: 'Anticonvulsant for epilepsy',
     price: 125,
     category: 'prescription',
-    image: 'https://images.unsplash.com/photo-1562736537-cec2d03fa71c?w=300&h=200&fit=crop',
+    image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=300&h=200&fit=crop',
     requires_prescription: true,
     in_stock: true,
-    manufacturer: 'Hospira'
+    manufacturer: 'Pfizer',
+    rxnorm_code: '8134'
   },
-  
-  // Additional Common Medicines
+
+  // Blood Thinners
   {
-    id: '55',
-    name: 'Domperidone 10mg',
-    description: 'Anti-nausea and vomiting',
-    price: 45,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=200&fit=crop',
-    requires_prescription: false,
+    id: '31',
+    name: 'Warfarin',
+    description: 'Anticoagulant blood thinner',
+    price: 105,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=300&h=200&fit=crop',
+    requires_prescription: true,
     in_stock: true,
-    manufacturer: 'Cipla'
+    manufacturer: 'Bristol Myers',
+    rxnorm_code: '11289'
   },
+
+  // Common Indian Brand Names
   {
-    id: '56',
-    name: 'Ranitidine 150mg',
-    description: 'Acid reducer for heartburn',
-    price: 35,
+    id: '32',
+    name: 'Dolo 650',
+    description: 'Paracetamol 650mg tablet',
+    price: 45,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
     requires_prescription: false,
     in_stock: true,
-    manufacturer: 'GSK'
+    manufacturer: 'Micro Labs',
+    rxnorm_code: '161'
   },
   {
-    id: '57',
-    name: 'Betadine Solution',
-    description: 'Antiseptic wound cleaner',
-    price: 65,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Mundipharma'
-  },
-  {
-    id: '58',
-    name: 'Hydrogen Peroxide 3%',
-    description: 'Antiseptic and wound cleaner',
-    price: 25,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'CVS Health'
-  },
-  {
-    id: '59',
-    name: 'Thermometer Digital',
-    description: 'Digital fever thermometer',
-    price: 250,
+    id: '33',
+    name: 'Crocin',
+    description: 'Paracetamol for fever and pain',
+    price: 35,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=300&h=200&fit=crop',
     requires_prescription: false,
     in_stock: true,
-    manufacturer: 'Omron'
+    manufacturer: 'GSK',
+    rxnorm_code: '161'
   },
   {
-    id: '60',
-    name: 'BP Monitor Digital',
-    description: 'Digital blood pressure monitor',
-    price: 1250,
+    id: '34',
+    name: 'Combiflam',
+    description: 'Ibuprofen + Paracetamol combination',
+    price: 42,
     category: 'basic',
     image: 'https://images.unsplash.com/photo-1512069772995-ec65bbf3d571?w=300&h=200&fit=crop',
     requires_prescription: false,
     in_stock: true,
-    manufacturer: 'Omron'
+    manufacturer: 'Sanofi',
+    rxnorm_code: '5640'
   },
   {
-    id: '61',
-    name: 'Glucose Test Strips',
-    description: 'Blood glucose monitoring strips',
-    price: 350,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&h=200&fit=crop',
-    requires_prescription: false,
+    id: '35',
+    name: 'Azee 500',
+    description: 'Azithromycin 500mg tablet',
+    price: 135,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=200&fit=crop',
+    requires_prescription: true,
     in_stock: true,
-    manufacturer: 'Accu-Chek'
+    manufacturer: 'Cipla',
+    rxnorm_code: '18631'
   },
+
+  // Cough and Cold
   {
-    id: '62',
-    name: 'Surgical Mask Box',
-    description: '50 pieces surgical masks',
-    price: 125,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1563213126-a4273aed2016?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: '3M'
-  },
-  {
-    id: '63',
-    name: 'Hand Sanitizer 500ml',
-    description: '70% alcohol hand sanitizer',
+    id: '36',
+    name: 'Benadryl Cough Syrup',
+    description: 'Cough suppressant syrup',
     price: 85,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Purell'
-  },
-  {
-    id: '64',
-    name: 'Bandages Assorted',
-    description: 'Various sizes adhesive bandages',
-    price: 45,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1585435557343-3b092031d637?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Band-Aid'
-  },
-  {
-    id: '65',
-    name: 'Cotton Balls 100g',
-    description: 'Sterile cotton balls',
-    price: 35,
-    category: 'basic',
+    category: 'cough',
     image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=300&h=200&fit=crop',
     requires_prescription: false,
     in_stock: true,
-    manufacturer: 'Johnson & Johnson'
+    manufacturer: 'Johnson & Johnson',
+    rxnorm_code: '1149'
   },
   {
-    id: '66',
-    name: 'Syringes 5ml (10 Pack)',
-    description: 'Disposable medical syringes',
-    price: 65,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=300&h=200&fit=crop',
+    id: '37',
+    name: 'Ascoril LS',
+    description: 'Expectorant cough syrup',
+    price: 95,
+    category: 'cough',
+    image: 'https://images.unsplash.com/photo-1585435557343-3b092031d637?w=300&h=200&fit=crop',
     requires_prescription: false,
     in_stock: true,
-    manufacturer: 'BD'
+    manufacturer: 'Glenmark',
+    rxnorm_code: '1536'
   },
+
+  // Vitamins and Supplements
   {
-    id: '67',
-    name: 'Elastic Bandage',
-    description: 'Compression bandage for sprains',
-    price: 55,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'ACE'
-  },
-  {
-    id: '68',
-    name: 'Eye Drops Refresh',
-    description: 'Artificial tears for dry eyes',
-    price: 85,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Allergan'
-  },
-  {
-    id: '69',
-    name: 'Antacid Tablets',
-    description: 'Quick relief from acidity',
-    price: 25,
-    category: 'basic',
-    image: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=300&h=200&fit=crop',
-    requires_prescription: false,
-    in_stock: true,
-    manufacturer: 'Tums'
-  },
-  {
-    id: '70',
-    name: 'Probiotic Capsules',
-    description: 'Digestive health supplement',
-    price: 145,
+    id: '38',
+    name: 'Vitamin D3',
+    description: 'Cholecalciferol supplement',
+    price: 95,
     category: 'energy',
-    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop',
+    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop',
     requires_prescription: false,
     in_stock: true,
-    manufacturer: 'Align'
+    manufacturer: 'Sun Pharma',
+    rxnorm_code: '1158'
+  },
+  {
+    id: '39',
+    name: 'B Complex',
+    description: 'Vitamin B complex tablets',
+    price: 85,
+    category: 'energy',
+    image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=300&h=200&fit=crop',
+    requires_prescription: false,
+    in_stock: true,
+    manufacturer: 'Mankind',
+    rxnorm_code: '2551'
+  },
+  {
+    id: '40',
+    name: 'Calcium Carbonate',
+    description: 'Calcium supplement for bone health',
+    price: 115,
+    category: 'energy',
+    image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=300&h=200&fit=crop',
+    requires_prescription: false,
+    in_stock: true,
+    manufacturer: 'Cipla',
+    rxnorm_code: '1819'
+  },
+
+  // More commonly prescribed medicines
+  {
+    id: '41',
+    name: 'Clarithromycin',
+    description: 'Macrolide antibiotic',
+    price: 145,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Abbott',
+    rxnorm_code: '21212'
+  },
+  {
+    id: '42',
+    name: 'Prednisone',
+    description: 'Corticosteroid anti-inflammatory',
+    price: 75,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Pfizer',
+    rxnorm_code: '8638'
+  },
+  {
+    id: '43',
+    name: 'Tramadol',
+    description: 'Opioid pain medication',
+    price: 165,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Janssen',
+    rxnorm_code: '10689'
+  },
+  {
+    id: '44',
+    name: 'Gabapentin',
+    description: 'Anticonvulsant for nerve pain',
+    price: 125,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Pfizer',
+    rxnorm_code: '4687'
+  },
+  {
+    id: '45',
+    name: 'Hydrochlorothiazide',
+    description: 'Diuretic for blood pressure',
+    price: 55,
+    category: 'prescription',
+    image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&h=200&fit=crop',
+    requires_prescription: true,
+    in_stock: true,
+    manufacturer: 'Merck',
+    rxnorm_code: '5487'
   }
 ];
