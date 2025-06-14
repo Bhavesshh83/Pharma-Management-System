@@ -15,13 +15,12 @@ export const extractPrescriptionData = async (imageFile: File): Promise<Prescrip
   try {
     console.log('Starting enhanced OCR processing...');
     
-    // Enhanced OCR WITHOUT tessedit_pageseg_mode (which is invalid in WorkerOptions)
+    // Enhanced OCR with configuration that DOES NOT use invalid properties
     const { data: { text } } = await Tesseract.recognize(
       imageFile,
       'eng',
       {
         logger: m => console.log(m),
-        preserve_interword_spaces: '1',
         tessedit_char_blacklist: '!@#$%^&*()+={}[]|\\:";\'<>?,./`~',
         tessedit_ocr_engine_mode: Tesseract.OEM.LSTM_ONLY
       }
