@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -83,7 +82,7 @@ const PrescriptionUpload = () => {
           navigate('/cart');
         }, 2000);
       } else {
-        setUploadStatus('verification');
+        setUploadStatus('error');
         toast({
           title: "Prescription processed",
           description: "No medicines matched. Please try another clear prescription.",
@@ -132,7 +131,7 @@ const PrescriptionUpload = () => {
           </h1>
           
           {/* Only show verification if processed but NO medicine match */}
-          {uploadStatus === 'verification' && prescriptionData ? (
+          {uploadStatus === 'error' && prescriptionData && prescriptionData.medicineMatches && prescriptionData.medicineMatches.length === 0 ? (
             <PrescriptionVerification
               prescriptionData={prescriptionData}
               hideActions // <--- tell comp to hide all actions
@@ -266,4 +265,3 @@ const PrescriptionUpload = () => {
 };
 
 export default PrescriptionUpload;
-

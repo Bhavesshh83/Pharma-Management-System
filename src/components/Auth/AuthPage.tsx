@@ -11,7 +11,7 @@ import { Heart, Sparkles, Shield, Zap, Clock, Eye, EyeOff } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const AuthPage = () => {
-  const { signIn, signUp } = useAuth();
+  const { login, register } = useAuth(); // <-- use login and register
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -31,11 +31,16 @@ const AuthPage = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signIn(formData.email, formData.password);
-      toast({
-        title: "Welcome back!",
-        description: "You have been signed in successfully.",
-      });
+      // AuthContext login(email, password, role)
+      const result = await login(formData.email, formData.password, formData.role);
+      if (result.success) {
+        toast({
+          title: "Welcome back!",
+          description: "You have been signed in successfully.",
+        });
+      } else {
+        throw new Error(result.error || "Invalid credentials. Please try again.");
+      }
     } catch (error: any) {
       toast({
         title: "Sign in failed",
@@ -60,18 +65,23 @@ const AuthPage = () => {
 
     setIsLoading(true);
     try {
-      await signUp(
-        formData.email,
-        formData.password,
-        formData.name,
-        formData.role,
-        formData.phone,
-        formData.address
-      );
-      toast({
-        title: "Account created!",
-        description: "Welcome to MediCare+. You can now access all features.",
+      // register takes (userData: Omit<User, 'id'> & { password: string })
+      const result = await register({
+        email: formData.email,
+        name: formData.name,
+        password: formData.password,
+        role: formData.role,
+        phone: formData.phone,
+        address: formData.address
       });
+      if (result.success) {
+        toast({
+          title: "Account created!",
+          description: "Welcome to MediCare+. You can now access all features.",
+        });
+      } else {
+        throw new Error(result.error || "Failed to create account. Please try again.");
+      }
     } catch (error: any) {
       toast({
         title: "Registration failed",
