@@ -1,15 +1,17 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Medicine } from '@/types';
+import { verifyDrugWithOpenFDA, batchVerifyDrugs, type DrugVerificationResult } from './openFdaService';
 
 export interface MedicineMatch {
   medicine: Medicine;
   confidence: number;
   rxnormMatch: boolean;
+  fdaVerification?: DrugVerificationResult;
 }
 
 export const searchMedicinesInDatabase = async (extractedMedicines: string[]): Promise<MedicineMatch[]> => {
   try {
-    console.log('Searching for medicines with enhanced matching:', extractedMedicines);
+    console.log('Searching for medicines with enhanced matching and FDA verification:', extractedMedicines);
     
     // Fetch all medicines from database
     const { data: medicines, error } = await supabase
@@ -29,6 +31,9 @@ export const searchMedicinesInDatabase = async (extractedMedicines: string[]): P
       return [];
     }
 
+    // Batch verify extracted medicines with OpenFDA
+    const fdaVerifications = await batchVerifyDrugs(extractedMedicines);
+
     const matches: MedicineMatch[] = [];
     const usedMedicineIds = new Set<string>();
 
@@ -39,8 +44,15 @@ export const searchMedicinesInDatabase = async (extractedMedicines: string[]): P
       const bestMatch = findEnhancedDatabaseMatch(extractedMedicine, medicines, usedMedicineIds);
       
       if (bestMatch) {
-        console.log('Found enhanced match:', bestMatch);
-        matches.push(bestMatch);
+        // Add FDA verification data
+        const fdaVerification = fdaVerifications[extractedMedicine];
+        const enhancedMatch = {
+          ...bestMatch,
+          fdaVerification
+        };
+        
+        console.log('Found enhanced match with FDA verification:', enhancedMatch);
+        matches.push(enhancedMatch);
         usedMedicineIds.add(bestMatch.medicine.id);
       } else {
         console.log('No match found for:', extractedMedicine);

@@ -35,7 +35,7 @@ export const extractPrescriptionData = async (imageFile: File): Promise<Prescrip
     
     console.log('Enhanced parsed medicines:', parsedData.medicines);
     
-    // Search for medicine matches in database
+    // Search for medicine matches in database and verify with OpenFDA
     const medicineMatches = await searchMedicinesInDatabase(parsedData.medicines);
     
     console.log('Medicine matches found:', medicineMatches.length);
@@ -289,28 +289,6 @@ const parseEnhancedPrescriptionText = (text: string): Omit<PrescriptionData, 'ra
                 calculateSimilarity(lowerExtracted, medicine) > 0.7) {
               uniqueMedicines.add(capitalizeFirstLetter(extractedName));
               break;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Strategy 3: Context-aware extraction
-  const contextKeywords = ['take', 'tablet', 'capsule', 'syrup', 'twice', 'daily', 'morning', 'evening', 'before', 'after', 'meal'];
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].toLowerCase();
-    const hasContext = contextKeywords.some(keyword => line.includes(keyword));
-    
-    if (hasContext) {
-      const words = line.split(/\s+/);
-      for (const word of words) {
-        const cleanWord = word.replace(/[^a-zA-Z]/g, '');
-        if (cleanWord.length >= 4) {
-          for (const medicine of medicineDatabase) {
-            if (cleanWord.toLowerCase().includes(medicine) || medicine.includes(cleanWord.toLowerCase()) ||
-                calculateSimilarity(cleanWord.toLowerCase(), medicine) > 0.75) {
-              uniqueMedicines.add(capitalizeFirstLetter(medicine));
             }
           }
         }

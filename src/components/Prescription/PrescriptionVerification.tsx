@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, ShoppingCart, Database } from 'lucide-react';
+import { CheckCircle, XCircle, ShoppingCart, Database, Shield } from 'lucide-react';
 import { PrescriptionData } from '@/services/ocrService';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
@@ -80,7 +80,7 @@ const PrescriptionVerification: React.FC<PrescriptionVerificationProps> = ({
         </CardContent>
       </Card>
 
-      {/* Detected & Matched Medicines */}
+      {/* Detected & Matched Medicines with FDA Verification */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -90,7 +90,7 @@ const PrescriptionVerification: React.FC<PrescriptionVerificationProps> = ({
         </CardHeader>
         <CardContent className="space-y-4">
           {medicineMatches.map((match, index) => {
-            const { medicine, confidence, rxnormMatch } = match;
+            const { medicine, confidence, rxnormMatch, fdaVerification } = match;
             return (
               <div key={index} className="border rounded-lg p-4 flex justify-between items-center">
                 <div className="flex-1">
@@ -105,12 +105,34 @@ const PrescriptionVerification: React.FC<PrescriptionVerificationProps> = ({
                         RxNorm Verified
                       </Badge>
                     )}
+                    {fdaVerification?.isVerified && (
+                      <Badge className="bg-blue-100 text-blue-800">
+                        <Shield className="h-3 w-3 mr-1" />
+                        FDA Verified
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-sm text-gray-600">{medicine.description}</p>
-                  <p className="text-sm text-gray-500">
-                    Manufacturer: {medicine.manufacturer}
-                    {medicine.rxnorm_code && ` | RxNorm: ${medicine.rxnorm_code}`}
-                  </p>
+                  <div className="text-sm text-gray-500 space-y-1">
+                    <p>Manufacturer: {medicine.manufacturer}</p>
+                    {medicine.rxnorm_code && <p>RxNorm: {medicine.rxnorm_code}</p>}
+                    {fdaVerification?.isVerified && fdaVerification.fdaData && (
+                      <div className="bg-blue-50 p-2 rounded mt-2">
+                        <p className="font-medium text-blue-800">FDA Information:</p>
+                        {fdaVerification.fdaData.brand_name && (
+                          <p>Brand: {fdaVerification.fdaData.brand_name}</p>
+                        )}
+                        {fdaVerification.fdaData.generic_name && (
+                          <p>Generic: {fdaVerification.fdaData.generic_name}</p>
+                        )}
+                        {fdaVerification.fdaData.manufacturer_name && (
+                          <p>FDA Manufacturer: {fdaVerification.fdaData.manufacturer_name}</p>
+                        )}
+                        <p>Match Type: {fdaVerification.matchType}</p>
+                        <p>FDA Confidence: {Math.round(fdaVerification.confidence * 100)}%</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   {verifiedMedicines.includes(medicine.id) ? (
