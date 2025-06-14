@@ -1,4 +1,3 @@
-
 import Tesseract from 'tesseract.js';
 import { searchMedicinesInDatabase, savePrescriptionToDatabase } from './medicineService';
 
@@ -16,15 +15,16 @@ export const extractPrescriptionData = async (imageFile: File): Promise<Prescrip
   try {
     console.log('Starting enhanced OCR processing...');
     
-    // Enhanced OCR with better configuration
+    // Enhanced OCR with optimized configuration for prescription text
     const { data: { text } } = await Tesseract.recognize(
       imageFile,
       'eng',
       {
         logger: m => console.log(m),
-        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,()-/ ',
         tessedit_pageseg_mode: Tesseract.PSM.AUTO,
-        preserve_interword_spaces: '1'
+        preserve_interword_spaces: '1',
+        tessedit_char_blacklist: '!@#$%^&*()+={}[]|\\:";\'<>?,./`~',
+        tessedit_ocr_engine_mode: Tesseract.OEM.LSTM_ONLY
       }
     );
 
@@ -77,14 +77,15 @@ const parseEnhancedPrescriptionText = (text: string): Omit<PrescriptionData, 'ra
   let patientName = '';
   const medicines: string[] = [];
 
-  // Enhanced patterns for doctor names
+  // Enhanced patterns for doctor names with more variations
   const doctorPatterns = [
     /dr\.?\s+([a-zA-Z\s\.]{3,40})/i,
     /doctor\s+([a-zA-Z\s\.]{3,40})/i,
     /physician\s+([a-zA-Z\s\.]{3,40})/i,
     /([a-zA-Z\s\.]{3,40})\s*,?\s*m\.?d\.?/i,
     /([a-zA-Z\s\.]{3,40})\s*,?\s*mbbs/i,
-    /([a-zA-Z\s\.]{3,40})\s*,?\s*md/i
+    /([a-zA-Z\s\.]{3,40})\s*,?\s*md/i,
+    /consultant\s+([a-zA-Z\s\.]{3,40})/i
   ];
 
   // Enhanced patterns for patient names
@@ -94,36 +95,95 @@ const parseEnhancedPrescriptionText = (text: string): Omit<PrescriptionData, 'ra
     /mr\.?\s*([a-zA-Z\s\.]{3,40})/i,
     /mrs\.?\s*([a-zA-Z\s\.]{3,40})/i,
     /ms\.?\s*([a-zA-Z\s\.]{3,40})/i,
-    /for\s+([a-zA-Z\s\.]{3,40})/i
+    /for\s+([a-zA-Z\s\.]{3,40})/i,
+    /prescribed\s+to\s+([a-zA-Z\s\.]{3,40})/i
   ];
 
-  // Comprehensive medicine database for better matching
+  // Comprehensive medicine database with Indian brands and generics
   const medicineDatabase = [
-    // Common generic names
-    'paracetamol', 'acetaminophen', 'ibuprofen', 'aspirin', 'diclofenac', 'naproxen',
-    'amoxicillin', 'azithromycin', 'ciprofloxacin', 'doxycycline', 'clarithromycin', 'cephalexin',
-    'metformin', 'insulin', 'glipizide', 'glyburide', 'sitagliptin',
-    'amlodipine', 'lisinopril', 'losartan', 'atenolol', 'metoprolol', 'enalapril',
-    'omeprazole', 'pantoprazole', 'ranitidine', 'famotidine', 'lansoprazole',
-    'atorvastatin', 'simvastatin', 'rosuvastatin', 'pravastatin',
-    'levothyroxine', 'methimazole', 'propylthiouracil',
-    'sertraline', 'fluoxetine', 'paroxetine', 'escitalopram', 'lorazepam', 'alprazolam',
-    'albuterol', 'salbutamol', 'budesonide', 'prednisolone', 'montelukast',
-    'warfarin', 'aspirin', 'clopidogrel', 'rivaroxaban',
-    'cetirizine', 'loratadine', 'fexofenadine', 'diphenhydramine',
+    // Pain relievers
+    'paracetamol', 'acetaminophen', 'dolo', 'crocin', 'metacin', 'pyrigesic',
+    'ibuprofen', 'brufen', 'combiflam', 'ibupain', 'nurofen',
+    'aspirin', 'disprin', 'ecosprin',
+    'diclofenac', 'voveran', 'dynapar', 'voltaren',
+    'naproxen', 'naprosyn',
     
-    // Indian brand names
-    'dolo', 'crocin', 'combiflam', 'brufen', 'volini', 'moov',
-    'azee', 'augmentin', 'cifran', 'norflox', 'oflox',
-    'glycomet', 'diabecon', 'glucobay', 'amaryl',
-    'telma', 'amlopres', 'cardace', 'ramipril', 'olmesar',
-    'pantop', 'omez', 'razo', 'peptica', 'zinetac',
-    'storvas', 'lipicure', 'atorlip', 'rosuvas',
-    'thyronorm', 'eltroxin', 'thyrox',
-    'nexito', 'prodep', 'flunil', 'petril', 'restyl',
-    'asthalin', 'seroflo', 'budecort', 'montair',
-    'zyrtec', 'allegra', 'avil', 'cetrizine',
-    'shelcal', 'calcimax', 'ostocalcium', 'vitamin',
+    // Antibiotics
+    'amoxicillin', 'amoxil', 'augmentin', 'novamox', 'moxikind',
+    'azithromycin', 'azee', 'azithral', 'azax', 'zithromax',
+    'ciprofloxacin', 'cifran', 'ciplox', 'cipro',
+    'doxycycline', 'doxt', 'doxy',
+    'clarithromycin', 'claribid', 'klacid',
+    'cephalexin', 'sporidex', 'cefalexin',
+    'levofloxacin', 'levaquin', 'tavanic',
+    
+    // Diabetes medications
+    'metformin', 'glycomet', 'glucophage', 'diabecon', 'metsmall',
+    'glipizide', 'glucotrol', 'minidiab',
+    'glyburide', 'glibenclamide', 'daonil',
+    'sitagliptin', 'januvia', 'zita',
+    'insulin', 'humulin', 'lantus', 'novolog',
+    
+    // Blood pressure medications
+    'amlodipine', 'amlopres', 'stamlo', 'amtas', 'norvasc',
+    'lisinopril', 'prinivil', 'zestril',
+    'losartan', 'cozaar', 'losacar',
+    'atenolol', 'tenormin', 'aten',
+    'metoprolol', 'lopressor', 'betaloc',
+    'enalapril', 'vasotec', 'enace',
+    'telmisartan', 'telma', 'micardis',
+    
+    // Stomach medications
+    'omeprazole', 'omez', 'prilosec', 'ocid',
+    'pantoprazole', 'pantop', 'protonix', 'pantocid',
+    'ranitidine', 'rantac', 'aciloc',
+    'famotidine', 'pepcid', 'famocid',
+    'lansoprazole', 'prevacid', 'lanzol',
+    'esomeprazole', 'nexium', 'esoz',
+    
+    // Cholesterol medications
+    'atorvastatin', 'lipitor', 'storvas', 'atorlip', 'lipicure',
+    'simvastatin', 'zocor', 'simvotin',
+    'rosuvastatin', 'crestor', 'rosuvas',
+    'pravastatin', 'pravachol',
+    
+    // Thyroid medications
+    'levothyroxine', 'synthroid', 'thyronorm', 'eltroxin',
+    'methimazole', 'tapazole', 'anti-thyroid',
+    'propylthiouracil', 'ptu',
+    
+    // Mental health medications
+    'sertraline', 'zoloft', 'sertima',
+    'fluoxetine', 'prozac', 'fludac',
+    'paroxetine', 'paxil', 'parotin',
+    'escitalopram', 'lexapro', 'citadep',
+    'lorazepam', 'ativan', 'lorazep',
+    'alprazolam', 'xanax', 'alzolam',
+    'clonazepam', 'klonopin', 'lonazep',
+    
+    // Respiratory medications
+    'albuterol', 'salbutamol', 'asthalin', 'ventolin',
+    'budesonide', 'pulmicort', 'budecort',
+    'prednisolone', 'orapred', 'wysolone',
+    'montelukast', 'singulair', 'montair',
+    'theophylline', 'theo-dur', 'deriphyllin',
+    
+    // Allergy medications
+    'cetirizine', 'zyrtec', 'cetrizine', 'alerid',
+    'loratadine', 'claritin', 'lorfast',
+    'fexofenadine', 'allegra', 'fexova',
+    'diphenhydramine', 'benadryl', 'avil,
+    
+    // Vitamins and supplements
+    'vitamin', 'calcium', 'iron', 'folic', 'acid',
+    'shelcal', 'calcimax', 'ostocalcium', 'calcitas',
+    'becosules', 'neurobion', 'mecobalamin',
+    
+    // Other common medicines
+    'digoxin', 'lanoxin', 'digitalis',
+    'warfarin', 'coumadin', 'warf',
+    'clopidogrel', 'plavix', 'clopivas',
+    'rivaroxaban', 'xarelto',
     
     // Dosage forms
     'tablet', 'capsule', 'syrup', 'injection', 'drops', 'cream', 'ointment', 'inhaler'
@@ -160,39 +220,53 @@ const parseEnhancedPrescriptionText = (text: string): Omit<PrescriptionData, 'ra
   }
 
   // Enhanced medicine extraction with multiple strategies
-  const allWords = text.toLowerCase().split(/[\s\n\r.,;:()\-]+/).filter(word => word.length > 2);
+  const allWords = text.toLowerCase().split(/[\s\n\r.,;:()\-\[\]]+/).filter(word => word.length > 2);
   const uniqueMedicines = new Set<string>();
 
-  // Strategy 1: Direct database matching
+  // Strategy 1: Direct database matching with fuzzy search
   for (const word of allWords) {
     for (const medicine of medicineDatabase) {
-      if (word.includes(medicine) || medicine.includes(word)) {
-        if (word.length >= 3) {
+      // Exact match
+      if (word === medicine) {
+        uniqueMedicines.add(capitalizeFirstLetter(medicine));
+      }
+      // Partial match (medicine contains word or word contains medicine)
+      else if (word.includes(medicine) || medicine.includes(word)) {
+        if (word.length >= 3 && medicine.length >= 3) {
           uniqueMedicines.add(capitalizeFirstLetter(medicine));
         }
+      }
+      // Fuzzy match for common misspellings
+      else if (calculateSimilarity(word, medicine) > 0.8 && word.length >= 4) {
+        uniqueMedicines.add(capitalizeFirstLetter(medicine));
       }
     }
   }
 
-  // Strategy 2: Line-by-line analysis with enhanced patterns
+  // Strategy 2: Line-by-line pattern matching with enhanced regex
   for (const line of lines) {
     const lowerLine = line.toLowerCase();
     
-    // Skip header lines
+    // Skip header/footer lines
     if (lowerLine.includes('prescription') || lowerLine.includes('clinic') || 
         lowerLine.includes('hospital') || lowerLine.includes('doctor') ||
-        lowerLine.includes('patient') || lowerLine.includes('date')) {
+        lowerLine.includes('patient') || lowerLine.includes('date') ||
+        lowerLine.includes('signature') || lowerLine.includes('stamp')) {
       continue;
     }
 
-    // Look for medicine patterns
+    // Enhanced medicine extraction patterns
     const medicinePatterns = [
-      // Pattern: Number. Medicine Name dosage
-      /^\s*\d+\.?\s*([a-zA-Z][a-zA-Z\s]{2,30})(?:\s+\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg|g|tab|tablet|capsule|cap|syrup|injection|inj|drops))?/i,
-      // Pattern: Medicine Name followed by dosage
-      /([a-zA-Z][a-zA-Z\s]{2,30})\s+\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg|g)/i,
-      // Pattern: Medicine Name with strength
-      /([a-zA-Z][a-zA-Z\s]{2,30})\s*(?:\d+(?:\.\d+)?)?(?:mg|ml|gm|mcg|g)?/i
+      // Pattern 1: Number. Medicine Name dosage
+      /^\s*\d+\.?\s*([a-zA-Z][a-zA-Z\s]{2,25})(?:\s+\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg|g|tab|tablet|capsule|cap|syrup|injection|inj|drops))?/i,
+      // Pattern 2: Medicine Name followed by dosage
+      /([a-zA-Z][a-zA-Z\s]{2,25})\s+\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg|g)/i,
+      // Pattern 3: Tab/Cap Medicine Name
+      /(?:tab|tablet|cap|capsule)\s+([a-zA-Z][a-zA-Z\s]{2,25})/i,
+      // Pattern 4: Medicine Name with strength notation
+      /([a-zA-Z][a-zA-Z\s]{2,25})\s*\(\s*\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg|g)\s*\)/i,
+      // Pattern 5: Simple medicine name on its own line
+      /^\s*([a-zA-Z][a-zA-Z\s]{3,25})\s*$/i
     ];
     
     for (const pattern of medicinePatterns) {
@@ -207,12 +281,12 @@ const parseEnhancedPrescriptionText = (text: string): Omit<PrescriptionData, 'ra
           .replace(/\s+/g, ' ') // Normalize spaces
           .trim();
         
-        // Validate the extracted medicine name
-        if (extractedName.length >= 3 && extractedName.length <= 30) {
-          // Check if it matches any known medicine
+        // Validate and match against database
+        if (extractedName.length >= 3 && extractedName.length <= 25) {
           const lowerExtracted = extractedName.toLowerCase();
           for (const medicine of medicineDatabase) {
-            if (lowerExtracted.includes(medicine) || medicine.includes(lowerExtracted)) {
+            if (lowerExtracted.includes(medicine) || medicine.includes(lowerExtracted) ||
+                calculateSimilarity(lowerExtracted, medicine) > 0.7) {
               uniqueMedicines.add(capitalizeFirstLetter(extractedName));
               break;
             }
@@ -220,21 +294,10 @@ const parseEnhancedPrescriptionText = (text: string): Omit<PrescriptionData, 'ra
         }
       }
     }
-
-    // Strategy 3: Fuzzy matching for common misspellings
-    const words = line.split(/\s+/).filter(word => word.length > 3);
-    for (const word of words) {
-      const cleanWord = word.toLowerCase().replace(/[^a-z]/g, '');
-      for (const medicine of medicineDatabase) {
-        if (calculateSimilarity(cleanWord, medicine) > 0.7) {
-          uniqueMedicines.add(capitalizeFirstLetter(medicine));
-        }
-      }
-    }
   }
 
-  // Strategy 4: Context-aware extraction
-  const contextKeywords = ['take', 'tablet', 'capsule', 'syrup', 'twice', 'daily', 'morning', 'evening'];
+  // Strategy 3: Context-aware extraction
+  const contextKeywords = ['take', 'tablet', 'capsule', 'syrup', 'twice', 'daily', 'morning', 'evening', 'before', 'after', 'meal'];
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].toLowerCase();
     const hasContext = contextKeywords.some(keyword => line.includes(keyword));
@@ -245,7 +308,8 @@ const parseEnhancedPrescriptionText = (text: string): Omit<PrescriptionData, 'ra
         const cleanWord = word.replace(/[^a-zA-Z]/g, '');
         if (cleanWord.length >= 4) {
           for (const medicine of medicineDatabase) {
-            if (cleanWord.toLowerCase().includes(medicine) || medicine.includes(cleanWord.toLowerCase())) {
+            if (cleanWord.toLowerCase().includes(medicine) || medicine.includes(cleanWord.toLowerCase()) ||
+                calculateSimilarity(cleanWord.toLowerCase(), medicine) > 0.75) {
               uniqueMedicines.add(capitalizeFirstLetter(medicine));
             }
           }
@@ -254,7 +318,7 @@ const parseEnhancedPrescriptionText = (text: string): Omit<PrescriptionData, 'ra
     }
   }
 
-  const finalMedicines = Array.from(uniqueMedicines).slice(0, 20); // Limit to 20 medicines
+  const finalMedicines = Array.from(uniqueMedicines).slice(0, 15); // Limit to 15 medicines
 
   console.log('Final enhanced extracted medicines:', finalMedicines);
 
