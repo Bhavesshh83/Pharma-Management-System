@@ -1,52 +1,20 @@
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, ShoppingCart, Database, Shield } from 'lucide-react';
 import { PrescriptionData } from '@/services/ocrService';
-import { useCart } from '@/contexts/CartContext';
-import { toast } from '@/hooks/use-toast';
 
 interface PrescriptionVerificationProps {
   prescriptionData: PrescriptionData;
-  onApprove: () => void;
-  onReject: () => void;
+  hideActions?: boolean;
+  // onApprove and onReject are no longer used for user upload flow
 }
 
 const PrescriptionVerification: React.FC<PrescriptionVerificationProps> = ({
   prescriptionData,
-  onApprove,
-  onReject
+  hideActions = false, // controls the actions UI, default = false for dashboards
 }) => {
-  const [verifiedMedicines, setVerifiedMedicines] = useState<string[]>([]);
-  const { addToCart } = useCart();
-
-  const handleAddToCart = (medicine: any) => {
-    addToCart(medicine, 1);
-    setVerifiedMedicines(prev => [...prev, medicine.id]);
-    toast({
-      title: "Medicine added to cart",
-      description: `${medicine.name} has been added to your cart`,
-    });
-  };
-
-  const handleApproveAll = () => {
-    const medicineMatches = prescriptionData.medicineMatches || [];
-    medicineMatches.forEach(({ medicine }) => {
-      if (!verifiedMedicines.includes(medicine.id)) {
-        addToCart(medicine, 1);
-      }
-    });
-    
-    toast({
-      title: "Prescription approved",
-      description: `${medicineMatches.length} medicines added to cart`,
-    });
-    
-    onApprove();
-  };
-
   const medicineMatches = prescriptionData.medicineMatches || [];
 
   return (
@@ -134,23 +102,7 @@ const PrescriptionVerification: React.FC<PrescriptionVerificationProps> = ({
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {verifiedMedicines.includes(medicine.id) ? (
-                    <Badge className="bg-green-100 text-green-800">
-                      <CheckCircle className="h-4 w-4 mr-1" />
-                      Added
-                    </Badge>
-                  ) : (
-                    <Button 
-                      size="sm" 
-                      onClick={() => handleAddToCart(medicine)}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-1" />
-                      Add to Cart
-                    </Button>
-                  )}
-                </div>
+                {/* Remove Add to Cart and "Added" buttons for user */}
               </div>
             );
           })}
@@ -193,27 +145,15 @@ const PrescriptionVerification: React.FC<PrescriptionVerificationProps> = ({
         </CardContent>
       </Card>
 
-      {/* Action Buttons */}
-      <div className="flex gap-4">
-        <Button 
-          onClick={handleApproveAll} 
-          className="flex-1 bg-green-600 hover:bg-green-700"
-          disabled={medicineMatches.length === 0}
-        >
-          <CheckCircle className="h-4 w-4 mr-2" />
-          Approve & Add All to Cart ({medicineMatches.length})
-        </Button>
-        <Button 
-          onClick={onReject} 
-          variant="destructive" 
-          className="flex-1"
-        >
-          <XCircle className="h-4 w-4 mr-2" />
-          Reject Prescription
-        </Button>
-      </div>
+      {/* Hide action buttons for user */}
+      {!hideActions && (
+        <div className="flex gap-4">
+          {/* This section can be enabled for pharmacist dashboard etc. */}
+        </div>
+      )}
     </div>
   );
 };
 
 export default PrescriptionVerification;
+

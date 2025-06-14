@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,14 +10,16 @@ import { Upload, FileText, CheckCircle, Eye, Brain, Database } from 'lucide-reac
 import { toast } from '@/hooks/use-toast';
 import { extractPrescriptionData, PrescriptionData } from '@/services/ocrService';
 import PrescriptionVerification from '@/components/Prescription/PrescriptionVerification';
+import { useCart } from '@/contexts/CartContext';
 
 const PrescriptionUpload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'processing' | 'verification' | 'success' | 'error'>('idle');
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'processing' | 'success' | 'error'>('idle');
   const [prescriptionData, setPrescriptionData] = useState<PrescriptionData | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -62,14 +64,32 @@ const PrescriptionUpload = () => {
       // Process prescription with OCR and database matching
       const extractedData = await extractPrescriptionData(selectedFile);
       setPrescriptionData(extractedData);
-      
-      setUploadStatus('verification');
-      
-      toast({
-        title: "Prescription processed successfully!",
-        description: `OCR extraction completed. Found ${extractedData.medicineMatches?.length || 0} medicine matches in database.`,
-      });
-      
+
+      // Auto-approve if medicines matched, add to cart
+      const medicineMatches = extractedData.medicineMatches || [];
+      if (medicineMatches.length > 0) {
+        // Add each matched medicine to cart (default quantity: 1)
+        medicineMatches.forEach(({ medicine }) => {
+          addToCart(medicine, 1);
+        });
+
+        setUploadStatus('success');
+        toast({
+          title: "Prescription processed and medicines added!",
+          description: `${medicineMatches.length} matched medicines auto-added to your cart.`,
+        });
+        // Redirect to cart after a short delay
+        setTimeout(() => {
+          navigate('/cart');
+        }, 2000);
+      } else {
+        setUploadStatus('verification');
+        toast({
+          title: "Prescription processed",
+          description: "No medicines matched. Please try another clear prescription.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       setUploadStatus('error');
       toast({
@@ -82,29 +102,8 @@ const PrescriptionUpload = () => {
     }
   };
 
-  const handleApprove = () => {
-    setUploadStatus('success');
-    toast({
-      title: "Prescription approved!",
-      description: "Medicines have been added to your cart.",
-    });
-    
-    // Redirect after a short delay
-    setTimeout(() => {
-      navigate('/cart');
-    }, 2000);
-  };
-
-  const handleReject = () => {
-    setUploadStatus('idle');
-    setSelectedFile(null);
-    setPrescriptionData(null);
-    toast({
-      title: "Prescription rejected",
-      description: "Please upload a new prescription.",
-      variant: "destructive",
-    });
-  };
+  // No reject handling needed for user
+  // No manual approve
 
   if (!user) {
     return (
@@ -132,11 +131,11 @@ const PrescriptionUpload = () => {
             Upload Prescription
           </h1>
           
+          {/* Only show verification if processed but NO medicine match */}
           {uploadStatus === 'verification' && prescriptionData ? (
             <PrescriptionVerification
               prescriptionData={prescriptionData}
-              onApprove={handleApprove}
-              onReject={handleReject}
+              hideActions // <--- tell comp to hide all actions
             />
           ) : (
             <Card>
@@ -267,3 +266,4 @@ const PrescriptionUpload = () => {
 };
 
 export default PrescriptionUpload;
+
