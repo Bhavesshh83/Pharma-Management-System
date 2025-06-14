@@ -172,7 +172,7 @@ const parseEnhancedPrescriptionText = (text: string): Omit<PrescriptionData, 'ra
     'cetirizine', 'zyrtec', 'cetrizine', 'alerid',
     'loratadine', 'claritin', 'lorfast',
     'fexofenadine', 'allegra', 'fexova',
-    'diphenhydramine', 'benadryl', 'avil,
+    'diphenhydramine', 'benadryl', 'avil',
     
     // Vitamins and supplements
     'vitamin', 'calcium', 'iron', 'folic', 'acid',
