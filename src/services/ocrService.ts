@@ -1,316 +1,129 @@
+
 import Tesseract from 'tesseract.js';
-import { searchMedicinesInDatabase, savePrescriptionToDatabase } from './medicineService';
+import { medicines } from '@/data/medicines';
 
 export interface PrescriptionData {
-  doctorName: string;
-  patientName: string;
-  uploadDate: string;
+  patientName?: string;
+  doctorName?: string;
   medicines: string[];
   rawText: string;
-  medicineMatches?: any[];
-  prescriptionId?: string;
+  confidence: number;
+  medicineMatches?: Array<{
+    extractedName: string;
+    medicine: any;
+    confidence: number;
+  }>;
 }
 
-export const extractPrescriptionData = async (imageFile: File): Promise<PrescriptionData> => {
+export const extractPrescriptionData = async (file: File): Promise<PrescriptionData> => {
   try {
-    console.log('Starting enhanced OCR processing...');
+    console.log('Starting OCR processing...');
     
-    // Enhanced OCR with configuration that DOES NOT use invalid properties
-    const { data: { text } } = await Tesseract.recognize(
-      imageFile,
-      'eng',
-      {
-        logger: m => console.log(m),
-        tessedit_char_blacklist: '!@#$%^&*()+={}[]|\\:";\'<>?,./`~',
-        tessedit_ocr_engine_mode: Tesseract.OEM.LSTM_ONLY
-      }
-    );
+    // Configure Tesseract with proper options
+    const { data: { text, confidence } } = await Tesseract.recognize(file, 'eng', {
+      logger: m => console.log(m)
+    });
 
-    console.log('Enhanced OCR extracted text:', text);
+    console.log('OCR completed. Raw text:', text);
+    console.log('OCR confidence:', confidence);
 
-    // Enhanced parsing with better medicine detection
-    const parsedData = parseEnhancedPrescriptionText(text);
-    
-    console.log('Enhanced parsed medicines:', parsedData.medicines);
-    
-    // Search for medicine matches in database and verify with OpenFDA
-    const medicineMatches = await searchMedicinesInDatabase(parsedData.medicines);
-    
-    console.log('Medicine matches found:', medicineMatches.length);
-    
-    // Save prescription to database for tracking
-    const imageUrl = URL.createObjectURL(imageFile);
-    
-    const ocrData = {
-      doctorName: parsedData.doctorName,
-      patientName: parsedData.patientName,
-      extractedMedicines: parsedData.medicines,
-      rawText: text,
-      confidence: 0.85
-    };
+    // Extract medicine names from the text
+    const extractedMedicines = extractMedicineNames(text);
+    console.log('Extracted medicines:', extractedMedicines);
 
-    const savedPrescription = await savePrescriptionToDatabase(
-      imageUrl,
-      ocrData,
-      parsedData.medicines
-    );
-    
+    // Match with database medicines
+    const medicineMatches = matchMedicinesWithDatabase(extractedMedicines);
+    console.log('Medicine matches:', medicineMatches);
+
+    // Extract patient and doctor names
+    const patientName = extractPatientName(text);
+    const doctorName = extractDoctorName(text);
+
     return {
-      ...parsedData,
+      patientName,
+      doctorName,
+      medicines: extractedMedicines,
       rawText: text,
-      uploadDate: new Date().toISOString().split('T')[0],
-      medicineMatches,
-      prescriptionId: savedPrescription.id
+      confidence,
+      medicineMatches
     };
   } catch (error) {
-    console.error('Enhanced OCR processing failed:', error);
-    throw new Error('Failed to process prescription image with enhanced OCR');
+    console.error('OCR processing failed:', error);
+    throw new Error('Failed to process prescription image');
   }
 };
 
-const parseEnhancedPrescriptionText = (text: string): Omit<PrescriptionData, 'rawText' | 'uploadDate' | 'medicineMatches' | 'prescriptionId'> => {
-  const lines = text.split('\n').filter(line => line.trim().length > 0);
+const extractMedicineNames = (text: string): string[] => {
+  // Common medicine name patterns and known medicine names
+  const medicinePatterns = [
+    /(?:tab|tablet|cap|capsule|syrup|injection|mg|ml)[\s:]*([a-zA-Z][a-zA-Z\s]{2,20})/gi,
+    /([a-zA-Z][a-zA-Z]{3,15})[\s]*(?:\d+)?[\s]*(?:mg|ml|tablet|tab|cap)/gi,
+  ];
+
+  const extractedNames = new Set<string>();
   
-  let doctorName = '';
-  let patientName = '';
-  const medicines: string[] = [];
-
-  // Enhanced patterns for doctor names with more variations
-  const doctorPatterns = [
-    /dr\.?\s+([a-zA-Z\s\.]{3,40})/i,
-    /doctor\s+([a-zA-Z\s\.]{3,40})/i,
-    /physician\s+([a-zA-Z\s\.]{3,40})/i,
-    /([a-zA-Z\s\.]{3,40})\s*,?\s*m\.?d\.?/i,
-    /([a-zA-Z\s\.]{3,40})\s*,?\s*mbbs/i,
-    /([a-zA-Z\s\.]{3,40})\s*,?\s*md/i,
-    /consultant\s+([a-zA-Z\s\.]{3,40})/i
-  ];
-
-  // Enhanced patterns for patient names
-  const patientPatterns = [
-    /patient\s*:?\s*([a-zA-Z\s\.]{3,40})/i,
-    /name\s*:?\s*([a-zA-Z\s\.]{3,40})/i,
-    /mr\.?\s*([a-zA-Z\s\.]{3,40})/i,
-    /mrs\.?\s*([a-zA-Z\s\.]{3,40})/i,
-    /ms\.?\s*([a-zA-Z\s\.]{3,40})/i,
-    /for\s+([a-zA-Z\s\.]{3,40})/i,
-    /prescribed\s+to\s+([a-zA-Z\s\.]{3,40})/i
-  ];
-
-  // Comprehensive medicine database with Indian brands and generics
-  const medicineDatabase = [
-    // Pain relievers
-    'paracetamol', 'acetaminophen', 'dolo', 'crocin', 'metacin', 'pyrigesic',
-    'ibuprofen', 'brufen', 'combiflam', 'ibupain', 'nurofen',
-    'aspirin', 'disprin', 'ecosprin',
-    'diclofenac', 'voveran', 'dynapar', 'voltaren',
-    'naproxen', 'naprosyn',
-    
-    // Antibiotics
-    'amoxicillin', 'amoxil', 'augmentin', 'novamox', 'moxikind',
-    'azithromycin', 'azee', 'azithral', 'azax', 'zithromax',
-    'ciprofloxacin', 'cifran', 'ciplox', 'cipro',
-    'doxycycline', 'doxt', 'doxy',
-    'clarithromycin', 'claribid', 'klacid',
-    'cephalexin', 'sporidex', 'cefalexin',
-    'levofloxacin', 'levaquin', 'tavanic',
-    
-    // Diabetes medications
-    'metformin', 'glycomet', 'glucophage', 'diabecon', 'metsmall',
-    'glipizide', 'glucotrol', 'minidiab',
-    'glyburide', 'glibenclamide', 'daonil',
-    'sitagliptin', 'januvia', 'zita',
-    'insulin', 'humulin', 'lantus', 'novolog',
-    
-    // Blood pressure medications
-    'amlodipine', 'amlopres', 'stamlo', 'amtas', 'norvasc',
-    'lisinopril', 'prinivil', 'zestril',
-    'losartan', 'cozaar', 'losacar',
-    'atenolol', 'tenormin', 'aten',
-    'metoprolol', 'lopressor', 'betaloc',
-    'enalapril', 'vasotec', 'enace',
-    'telmisartan', 'telma', 'micardis',
-    
-    // Stomach medications
-    'omeprazole', 'omez', 'prilosec', 'ocid',
-    'pantoprazole', 'pantop', 'protonix', 'pantocid',
-    'ranitidine', 'rantac', 'aciloc',
-    'famotidine', 'pepcid', 'famocid',
-    'lansoprazole', 'prevacid', 'lanzol',
-    'esomeprazole', 'nexium', 'esoz',
-    
-    // Cholesterol medications
-    'atorvastatin', 'lipitor', 'storvas', 'atorlip', 'lipicure',
-    'simvastatin', 'zocor', 'simvotin',
-    'rosuvastatin', 'crestor', 'rosuvas',
-    'pravastatin', 'pravachol',
-    
-    // Thyroid medications
-    'levothyroxine', 'synthroid', 'thyronorm', 'eltroxin',
-    'methimazole', 'tapazole', 'anti-thyroid',
-    'propylthiouracil', 'ptu',
-    
-    // Mental health medications
-    'sertraline', 'zoloft', 'sertima',
-    'fluoxetine', 'prozac', 'fludac',
-    'paroxetine', 'paxil', 'parotin',
-    'escitalopram', 'lexapro', 'citadep',
-    'lorazepam', 'ativan', 'lorazep',
-    'alprazolam', 'xanax', 'alzolam',
-    'clonazepam', 'klonopin', 'lonazep',
-    
-    // Respiratory medications
-    'albuterol', 'salbutamol', 'asthalin', 'ventolin',
-    'budesonide', 'pulmicort', 'budecort',
-    'prednisolone', 'orapred', 'wysolone',
-    'montelukast', 'singulair', 'montair',
-    'theophylline', 'theo-dur', 'deriphyllin',
-    
-    // Allergy medications
-    'cetirizine', 'zyrtec', 'cetrizine', 'alerid',
-    'loratadine', 'claritin', 'lorfast',
-    'fexofenadine', 'allegra', 'fexova',
-    'diphenhydramine', 'benadryl', 'avil',
-    
-    // Vitamins and supplements
-    'vitamin', 'calcium', 'iron', 'folic', 'acid',
-    'shelcal', 'calcimax', 'ostocalcium', 'calcitas',
-    'becosules', 'neurobion', 'mecobalamin',
-    
-    // Other common medicines
-    'digoxin', 'lanoxin', 'digitalis',
-    'warfarin', 'coumadin', 'warf',
-    'clopidogrel', 'plavix', 'clopivas',
-    'rivaroxaban', 'xarelto',
-    
-    // Dosage forms
-    'tablet', 'capsule', 'syrup', 'injection', 'drops', 'cream', 'ointment', 'inhaler'
-  ];
-
-  // Extract doctor name
-  for (const line of lines) {
-    for (const pattern of doctorPatterns) {
-      const match = line.match(pattern);
-      if (match && match[1]) {
-        const name = match[1].trim().replace(/[.,]+$/, '');
-        if (name.length > 2 && name.length < 40) {
-          doctorName = name;
-          break;
+  // Extract using patterns
+  medicinePatterns.forEach(pattern => {
+    const matches = text.match(pattern);
+    if (matches) {
+      matches.forEach(match => {
+        const cleaned = match.replace(/(?:tab|tablet|cap|capsule|syrup|injection|mg|ml|\d+)/gi, '').trim();
+        if (cleaned.length > 2) {
+          extractedNames.add(cleaned);
         }
-      }
+      });
     }
-    if (doctorName) break;
-  }
+  });
 
-  // Extract patient name
-  for (const line of lines) {
-    for (const pattern of patientPatterns) {
-      const match = line.match(pattern);
-      if (match && match[1]) {
-        const name = match[1].trim().replace(/[.,]+$/, '');
-        if (name.length > 2 && name.length < 40 && name !== doctorName) {
-          patientName = name;
-          break;
-        }
-      }
+  // Also look for known medicine names directly
+  medicines.forEach(medicine => {
+    const medicineName = medicine.name.toLowerCase();
+    if (text.toLowerCase().includes(medicineName)) {
+      extractedNames.add(medicine.name);
     }
-    if (patientName) break;
-  }
+  });
 
-  // Enhanced medicine extraction with multiple strategies
-  const allWords = text.toLowerCase().split(/[\s\n\r.,;:()\-\[\]]+/).filter(word => word.length > 2);
-  const uniqueMedicines = new Set<string>();
-
-  // Strategy 1: Direct database matching with fuzzy search
-  for (const word of allWords) {
-    for (const medicine of medicineDatabase) {
-      // Exact match
-      if (word === medicine) {
-        uniqueMedicines.add(capitalizeFirstLetter(medicine));
-      }
-      // Partial match (medicine contains word or word contains medicine)
-      else if (word.includes(medicine) || medicine.includes(word)) {
-        if (word.length >= 3 && medicine.length >= 3) {
-          uniqueMedicines.add(capitalizeFirstLetter(medicine));
-        }
-      }
-      // Fuzzy match for common misspellings
-      else if (calculateSimilarity(word, medicine) > 0.8 && word.length >= 4) {
-        uniqueMedicines.add(capitalizeFirstLetter(medicine));
-      }
-    }
-  }
-
-  // Strategy 2: Line-by-line pattern matching with enhanced regex
-  for (const line of lines) {
-    const lowerLine = line.toLowerCase();
-    
-    // Skip header/footer lines
-    if (lowerLine.includes('prescription') || lowerLine.includes('clinic') || 
-        lowerLine.includes('hospital') || lowerLine.includes('doctor') ||
-        lowerLine.includes('patient') || lowerLine.includes('date') ||
-        lowerLine.includes('signature') || lowerLine.includes('stamp')) {
-      continue;
-    }
-
-    // Enhanced medicine extraction patterns
-    const medicinePatterns = [
-      // Pattern 1: Number. Medicine Name dosage
-      /^\s*\d+\.?\s*([a-zA-Z][a-zA-Z\s]{2,25})(?:\s+\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg|g|tab|tablet|capsule|cap|syrup|injection|inj|drops))?/i,
-      // Pattern 2: Medicine Name followed by dosage
-      /([a-zA-Z][a-zA-Z\s]{2,25})\s+\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg|g)/i,
-      // Pattern 3: Tab/Cap Medicine Name
-      /(?:tab|tablet|cap|capsule)\s+([a-zA-Z][a-zA-Z\s]{2,25})/i,
-      // Pattern 4: Medicine Name with strength notation
-      /([a-zA-Z][a-zA-Z\s]{2,25})\s*\(\s*\d+(?:\.\d+)?\s*(?:mg|ml|gm|mcg|g)\s*\)/i,
-      // Pattern 5: Simple medicine name on its own line
-      /^\s*([a-zA-Z][a-zA-Z\s]{3,25})\s*$/i
-    ];
-    
-    for (const pattern of medicinePatterns) {
-      const match = line.match(pattern);
-      if (match && match[1]) {
-        let extractedName = match[1].trim();
-        
-        // Clean the extracted name
-        extractedName = extractedName
-          .replace(/^\d+\.?\s*/, '') // Remove numbering
-          .replace(/\s*-.*$/, '') // Remove instructions after dash
-          .replace(/\s+/g, ' ') // Normalize spaces
-          .trim();
-        
-        // Validate and match against database
-        if (extractedName.length >= 3 && extractedName.length <= 25) {
-          const lowerExtracted = extractedName.toLowerCase();
-          for (const medicine of medicineDatabase) {
-            if (lowerExtracted.includes(medicine) || medicine.includes(lowerExtracted) ||
-                calculateSimilarity(lowerExtracted, medicine) > 0.7) {
-              uniqueMedicines.add(capitalizeFirstLetter(extractedName));
-              break;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  const finalMedicines = Array.from(uniqueMedicines).slice(0, 15); // Limit to 15 medicines
-
-  console.log('Final enhanced extracted medicines:', finalMedicines);
-
-  return {
-    doctorName: doctorName || 'Not detected',
-    patientName: patientName || 'Not detected',
-    medicines: finalMedicines
-  };
+  return Array.from(extractedNames);
 };
 
-// Helper functions
-const capitalizeFirstLetter = (string: string): string => {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+const matchMedicinesWithDatabase = (extractedNames: string[]) => {
+  const matches: Array<{
+    extractedName: string;
+    medicine: any;
+    confidence: number;
+  }> = [];
+
+  extractedNames.forEach(extractedName => {
+    const bestMatch = findBestMedicineMatch(extractedName);
+    if (bestMatch) {
+      matches.push({
+        extractedName,
+        medicine: bestMatch.medicine,
+        confidence: bestMatch.confidence
+      });
+    }
+  });
+
+  return matches;
+};
+
+const findBestMedicineMatch = (extractedName: string) => {
+  let bestMatch = null;
+  let highestConfidence = 0;
+
+  medicines.forEach(medicine => {
+    const confidence = calculateSimilarity(extractedName.toLowerCase(), medicine.name.toLowerCase());
+    if (confidence > highestConfidence && confidence > 0.6) {
+      highestConfidence = confidence;
+      bestMatch = { medicine, confidence };
+    }
+  });
+
+  return bestMatch;
 };
 
 const calculateSimilarity = (str1: string, str2: string): number => {
+  // Simple similarity calculation using Levenshtein distance
   const longer = str1.length > str2.length ? str1 : str2;
   const shorter = str1.length > str2.length ? str2 : str1;
   
@@ -321,21 +134,64 @@ const calculateSimilarity = (str1: string, str2: string): number => {
 };
 
 const levenshteinDistance = (str1: string, str2: string): number => {
-  const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+  const matrix = [];
   
-  for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
-  for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+  for (let i = 0; i <= str2.length; i++) {
+    matrix[i] = [i];
+  }
   
-  for (let j = 1; j <= str2.length; j++) {
-    for (let i = 1; i <= str1.length; i++) {
-      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
-      matrix[j][i] = Math.min(
-        matrix[j][i - 1] + 1,
-        matrix[j - 1][i] + 1,
-        matrix[j - 1][i - 1] + cost
-      );
+  for (let j = 0; j <= str1.length; j++) {
+    matrix[0][j] = j;
+  }
+  
+  for (let i = 1; i <= str2.length; i++) {
+    for (let j = 1; j <= str1.length; j++) {
+      if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
     }
   }
   
   return matrix[str2.length][str1.length];
+};
+
+const extractPatientName = (text: string): string | undefined => {
+  const patterns = [
+    /patient[\s:]*([a-zA-Z\s]{3,30})/i,
+    /name[\s:]*([a-zA-Z\s]{3,30})/i,
+    /mr\.?\s*([a-zA-Z\s]{3,30})/i,
+    /mrs\.?\s*([a-zA-Z\s]{3,30})/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+
+  return undefined;
+};
+
+const extractDoctorName = (text: string): string | undefined => {
+  const patterns = [
+    /dr\.?\s*([a-zA-Z\s]{3,30})/i,
+    /doctor[\s:]*([a-zA-Z\s]{3,30})/i,
+    /physician[\s:]*([a-zA-Z\s]{3,30})/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+
+  return undefined;
 };
