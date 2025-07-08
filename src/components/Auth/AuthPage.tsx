@@ -38,6 +38,10 @@ const AuthPage = () => {
           title: "Welcome back!",
           description: "You have been signed in successfully.",
         });
+        // Redirect to respective dashboard based on role
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 1000);
       } else {
         throw new Error(result.error || "Invalid credentials. Please try again.");
       }
@@ -69,6 +73,10 @@ const AuthPage = () => {
           title: "Account created!",
           description: "Welcome to MediCare+. You can now access all features.",
         });
+        // Redirect to respective dashboard based on role
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 1000);
       } else {
         throw new Error(result.error || "Failed to create account. Please try again.");
       }

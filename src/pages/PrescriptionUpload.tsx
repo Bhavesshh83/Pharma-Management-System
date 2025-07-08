@@ -64,23 +64,36 @@ const PrescriptionUpload = () => {
       const extractedData = await extractPrescriptionData(selectedFile);
       setPrescriptionData(extractedData);
 
-      // Auto-approve if medicines matched, add to cart
+      // Check if any medicine requires prescription
       const medicineMatches = extractedData.medicineMatches || [];
+      const requiresPrescription = medicineMatches.some(({ medicine }) => medicine.requires_prescription);
+      
       if (medicineMatches.length > 0) {
-        // Add each matched medicine to cart (default quantity: 1)
-        medicineMatches.forEach(({ medicine }) => {
-          addToCart(medicine, 1);
-        });
-
-        setUploadStatus('success');
-        toast({
-          title: "Prescription processed and medicines added!",
-          description: `${medicineMatches.length} matched medicines auto-added to your cart.`,
-        });
-        // Redirect to cart after a short delay
-        setTimeout(() => {
-          navigate('/cart');
-        }, 2000);
+        if (requiresPrescription) {
+          // Send to pharmacist for approval if any medicine requires prescription
+          setUploadStatus('success');
+          toast({
+            title: "Prescription submitted for review",
+            description: "Your prescription contains medicines that require pharmacist approval. You'll be notified once approved.",
+          });
+          // Store prescription data for pharmacist review
+          // TODO: Save to database with status 'pending'
+        } else {
+          // Auto-approve if no prescription required medicines
+          medicineMatches.forEach(({ medicine }) => {
+            addToCart(medicine, 1);
+          });
+          
+          setUploadStatus('success');
+          toast({
+            title: "Medicines added to cart!",
+            description: `${medicineMatches.length} over-the-counter medicines added to your cart.`,
+          });
+          // Redirect to cart after a short delay
+          setTimeout(() => {
+            navigate('/cart');
+          }, 2000);
+        }
       } else {
         setUploadStatus('error');
         toast({
