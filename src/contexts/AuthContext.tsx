@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     getInitialSession();
 
     return () => subscription.unsubscribe();
-  }, [fetchUserProfile, clearUser, setLoading]);
+  }, []);  // Remove function dependencies to prevent infinite loops
 
   const login = async (email: string, password: string, role: string) => {
     setLoading(true);
