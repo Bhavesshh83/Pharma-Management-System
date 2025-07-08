@@ -8,10 +8,14 @@ export interface PrescriptionData {
   medicines: string[];
   rawText: string;
   confidence: number;
+  uploadDate?: string;
+  prescriptionId?: string;
   medicineMatches?: Array<{
     extractedName: string;
     medicine: any;
     confidence: number;
+    rxnormMatch?: boolean;
+    fdaVerification?: any;
   }>;
 }
 
